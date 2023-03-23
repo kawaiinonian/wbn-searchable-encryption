@@ -1,6 +1,6 @@
 # 客户端设计文档
 
-## 1.用户持有数据
+## 1. 用户持有数据
 
 | 名称                                 | 说明                                                         | 数据类型      |
 | ------------------------------------ | ------------------------------------------------------------ | ------------- |
@@ -56,17 +56,55 @@ class User:
     DUs: Dict[User_data.user_id, UD]
 ```
 
-## 2.用户操作
+## 2. 用户操作
 
 ### 2.0 初始化
 
+```python
+async def init():
+    await user_id, result = get_user_id() #向服务器申请一个user_id
+    return user_id, result
+```
+
 ### 2.1 向服务器上传数据并成为DO
 
-### 2.2 接收其他用户的登记
+```python
+async def add_data(user_id, files, sk):
+    FILE_DESC *d[N]
+    gen_file_desc(d, fp) # 获取文件标识符
+    if sk is None 
+        init_sk(sk)
+    enc_fp = enc_files(fp, sk->k3) # 加密文件本体，暂时认为文件的加密密钥就是K_d^enc
+    ENCRYPT_DATA = enc_index_keyword(d, sk->k1, sk->k2) # 加密索引和关键词，但还没有想好用什么结构存储
+    await result = communicate_server(ADD, user_id, enc_fp, data) # 向服务器提交加密文件和加密索引，并返回通讯结果
+    return result
+```
 
-### 2.3 向其他用户登记
+### 2.2 登记其他用户
+
+```python
+async def enroll_response(enroll_user_id, auth_list):
+    uk = gen_user_key() # 生成授权密钥
+    enroll(enroll_user_id, auth_list) # 将被授权的用户写入自己的authlist里面
+    await result = communicate_user(ENROLL_RESPONSE, enroll_user_id, uk) # 向申请授权的用户发送授权密钥并返回结果
+    return result
+```
+
+### 2.3 向其他用户请求登记
+
+```python
+async def enroll_request(user_id, requested_user_id):
+	await result = communicate_user(ENROLL_REQUEST, user_id, requested_user_id)
+    return result
+```
 
 ### 2.4 作为DO向登记过的用户授权
+
+```
+
+```
+
+
 
 ### 2.5 作为DU向其他用户授权
 
@@ -77,3 +115,5 @@ class User:
 ### 2.8 向服务器查询
 
 ### 2.9 撤回授权
+
+## 3. API
