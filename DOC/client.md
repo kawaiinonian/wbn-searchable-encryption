@@ -1,4 +1,4 @@
-# 客户端设计文档
+#  客户端设计文档
 
 ## 1. 用户持有数据
 
@@ -74,8 +74,8 @@ async def add_data(user_id, files, sk):
     gen_file_desc(d, fp) # 获取文件标识符
     if sk is None 
         init_sk(sk)
-    enc_fp = enc_files(fp, sk->k3) # 加密文件本体，暂时认为文件的加密密钥就是K_d^enc
-    ENCRYPT_DATA = enc_index_keyword(d, sk->k1, sk->k2) # 加密索引和关键词，但还没有想好用什么结构存储
+    enc_fp = enc_files(fp, sk.k3) # 加密文件本体，暂时认为文件的加密密钥就是K_d^enc
+    ENCRYPT_DATA = enc_index_keyword(d, sk.k1, sk.k2) # 加密索引和关键词，但还没有想好用什么结构存储
     await result = communicate_server(ADD, user_id, enc_fp, data) # 向服务器提交加密文件和加密索引，并返回通讯结果
     return result
 ```
