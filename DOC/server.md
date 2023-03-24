@@ -30,6 +30,16 @@ Schema：__________________
 ### 2.1 更新
 
 ```python
-async def add():
+async def add(ADD, user_id, enc_fp, data):
+    edb = get_edb(user_id) # 获取 user_id 对应的数据库
+    if edb is None:
+        edb = init_edb(user_id) # 没有则新建
+    try:
+        edb.xset = data.tmpset # 更新 XSet
+        edb.save()
+        result = "Success"
+    except Exception as e:
+        result = "Fail: " + str(e)
+    return result
 ```
 
