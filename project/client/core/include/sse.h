@@ -1,6 +1,6 @@
-#include "project/client/core/include/const.h"
+#include "include/const.h"
 // to be changed: for coding with no error
-#include "project/client/core/include/include.h"
+#include "include/include.h"
 
 
 /***************************************
@@ -9,7 +9,7 @@
  * @param DOC 要加密的文件标识符集
  * @param Xset_to_server 返回给服务器的文件-关键词索引
 ****************************************/
-void updateData_generate(SEARCH_KEY skey, FILE_DESC DOC[], XSET_LIST &Xset_to_server);
+void updateData_generate(SEARCH_KEY skey, FILE_DESC_LIST DOC, XSET_LIST &Xset_to_server);
 
 
 /***************************************
@@ -20,7 +20,7 @@ void updateData_generate(SEARCH_KEY skey, FILE_DESC DOC[], XSET_LIST &Xset_to_se
  * @param key_to_user 返回给DU的文件密钥集
  * @param uset_to_server 返回给服务器更新DU-文件授权关系的字典
 ****************************************/
-void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC DOC[], 
+void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC, 
     DOCKEY_LIST &key_to_user, USET_DICT &uset_to_server);
 
 /***************************************
@@ -33,7 +33,7 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC DOC[],
 * @param auth_to_userB 返回给被授权DU的被授权信息字典
 * @param key_to_userB 返回给被授权DU的文件密钥集
 ****************************************/
-void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, FILE_DESC DOC[], 
+void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, FILE_DESC_LIST DOC, 
     USER_AUTH_DICT User_AuthA, DOCKEY_LIST Doc_KeyA, 
     USER_AUTH_DICT &auth_to_userB, DOCKEY_LIST &key_to_userB);
 
@@ -77,9 +77,9 @@ class DOCKEY_ITEM {
 
 class USER_AUTH_ITEM{
     public:
-    std::byte uid[MAX_ENCRYPT_RESULT];
+    std::byte uid[LAMBDA];
     group_element offtok;
-    std::vector<std::byte[MAX_ENCRYPT_RESULT]> AList;
+    std::vector<std::byte[LAMBDA]> AList;
     USER_AUTH_ITEM(){
 
     }
@@ -87,9 +87,9 @@ class USER_AUTH_ITEM{
 
 class QUERY_ITEM {
     public:
-    std::byte uid[MAX_ENCRYPT_RESULT];
+    std::byte uid[LAMBDA];
     group_element stk_d;
-    std::vector<std::byte[MAX_ENCRYPT_RESULT]> AList;
+    std::vector<std::byte[LAMBDA]> AList;
     QUERY_ITEM() {
         
     }
@@ -107,7 +107,7 @@ class FILE_DESC{
 class XSET_ITEM {
     public:
     group_element xwd;
-    std::byte ywd[MAX_ENCRYPT_RESULT];
+    std::byte ywd[LAMBDA];
     XSET_ITEM() {
 
     }
