@@ -35,7 +35,7 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC,
 ****************************************/
 void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, FILE_DESC_LIST DOC, 
     USER_AUTH_DICT User_AuthA, DOCKEY_LIST Doc_KeyA, 
-    USER_AUTH_DICT &auth_to_userB, DOCKEY_LIST &key_to_userB
+    USER_AUTH_DICT &auth_to_userB, DOCKEY_LIST &key_to_userB,
     ASET_ITEM &tmp_Aset_to_server);
 
 /***************************************

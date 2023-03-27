@@ -1,34 +1,50 @@
-#include <cryptlib.h>
-#include <aes.h>
 
 
 #include <string>
 #include <map>
 #include <vector>
 
+class FILE_DESC;
+class SEARCH_KEY;
+class USER_KEY;
+class DOCKEY_ITEM;
+class USER_AUTH_ITEM;
+class QUERY_ITEM;
+class XSET_ITEM;
+class ASET_ITEM;
+
+typedef CryptoPP::SecByteBlock KEY;
 typedef std::map<FILE_DESC, USER_AUTH_ITEM> USER_AUTH_DICT;
 typedef std::vector<QUERY_ITEM> QUERY_LIST;
 typedef std::vector<DOCKEY_ITEM> DOCKEY_LIST;
-typedef std::map<std::byte[LAMBDA], std::byte[LAMBDA]> USET_DICT;
+typedef std::map<KEY, KEY> USET_DICT;
 typedef std::vector<XSET_ITEM> XSET_LIST;
 typedef std::vector<FILE_DESC> FILE_DESC_LIST;
-typedef std::map<std::byte[LAMBDA], group_element> ASET_DICT;
+typedef std::map<KEY, KEY> ASET_DICT;
 // to be changed: for coding with no error
-typedef int group_element;
-typedef std::string keyword;
+typedef std::vector<std::string> keyword;
+
+class FILE_DESC {
+    public:
+    keyword words;
+    std::string dec_flag = "CORRECT";
+    FILE_DESC() {
+
+    } 
+};
 
 class SEARCH_KEY {
     public:
-    std::byte K1[LAMBDA], K2[LAMBDA], K3[LAMBDA];
+    KEY K1, K2, K3;
 
-    SEARCH_KEY(std::byte *K[]) {
+    SEARCH_KEY() {
 
     }
 };
 
 class USER_KEY {
     public:
-    std::byte KU[LAMBDA], KUT[LAMBDA];
+    KEY KU, KUT;
 
     USER_KEY() {
 
@@ -38,47 +54,33 @@ class USER_KEY {
 class DOCKEY_ITEM {
     public:
     FILE_DESC d;
-    std::byte Kd, Kd_enc;
+    KEY Kd, Kd_enc;
     DOCKEY_ITEM() {
 
     }
 };
 
-class USER_AUTH_ITEM{
+class USER_AUTH_ITEM {
     public:
-    std::byte uid[LAMBDA];
-    group_element offtok;
+    KEY uid, offtok, aid;
     //std::vector<std::byte[LAMBDA]> AList;
-    std::byte aid[LAMBDA];
-    USER_AUTH_ITEM(){
+    USER_AUTH_ITEM() {
 
     }
 };
 
 class QUERY_ITEM {
     public:
-    std::byte uid[LAMBDA];
-    group_element stk_d;
+    KEY uid, stk_d, aid;
     //std::vector<std::byte[LAMBDA]> AList;
-    std::byte aid[LAMBDA];
     QUERY_ITEM() {
         
     }
 };
 
-class FILE_DESC{
-    public:
-    keyword words[MAX_WORD];
-    //std:: string dec_flag = "CORRECT";
-    FILE_DESC() {
-
-    } 
-};
-
 class XSET_ITEM {
     public:
-    group_element xwd;
-    std::byte ywd[LAMBDA];
+    KEY xwd, ywd;
     XSET_ITEM() {
 
     }
@@ -86,9 +88,8 @@ class XSET_ITEM {
 
 class ASET_ITEM {
     public:
-    std::byte aid[LAMBDA];
-    group_element trapgate;
+    KEY aid, trapgate;
     ASET_ITEM() {
         
     }
-}
+};
