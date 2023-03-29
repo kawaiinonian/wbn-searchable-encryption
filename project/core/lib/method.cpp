@@ -30,7 +30,6 @@ int write_file(const char *path, char *data, int len) {
         return 1;
     }
     
-
     return 0;
 }
 
