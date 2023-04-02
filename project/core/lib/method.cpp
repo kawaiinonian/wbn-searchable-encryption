@@ -1,103 +1,37 @@
-#include "method.h"
+#include "lib/method.h"
 
-uint8_t *read_file(const char *path, size_t &len) {
-	FILE *fp;
-	uint8_t *data;
- 
-	fp = fopen(path, "rb");
-	if (fp == NULL) {
-		return NULL;
-	}
-
-	fseek(fp, 0, SEEK_END);
-	len = ftell(fp);
-	data = (uint8_t *)malloc((len + 1) * sizeof(uint8_t));
-	rewind(fp);
-	len = fread(data, 1, len, fp);
-	data[len] = '\0';
-	fclose(fp);
-
-    return data;
+void setting_init() {
+    core_init();
+    fp_param_set(NIST_256);
 }
 
-int write_file(const char *path, uint8_t *data, size_t len) {
-    FILE * fp = fopen(path, "wb");
-    if (fp) {
-        assert(len = fwrite(data, 1, len, fp));
-        fclose(fp);
-        return 0;
-    } else {
-        return 1;
-    }
-    
-    return 0;
+void F(uint8_t *key, uint8_t* msg, fp_t result) {
+    uint8_t tmp[LAMBDA] = {0};
+    G(tmp, msg, key);
+    fp_read_bin(result, tmp, LAMBDA);
 }
 
-int f_aes_cbc_enc(const char *in_path, const char *out_path, const uint8_t *key, size_t key_len, const uint8_t *iv) {
-    FILE *fp;
-    uint8_t *plaintxt, *ciphertxt;
-    size_t in_len, out_len;
-
-    plaintxt = (uint8_t *)read_file(in_path, in_len);
-    if (plaintxt == NULL) {
-        return 1;
-    }
-
-    if (bc_aes_cbc_enc(ciphertxt, &out_len, plaintxt, in_len, key, key_len, iv)) {
-        // uint8_t *p1, *p2;
-        // for (p1 = p2 = (uint8_t *)path; p1 != '\0'; p1++) {
-        //     if (*p1 == '/') {
-        //         p2 = p1;
-        //     }
-        // }
-        if (!write_file(out_path, ciphertxt, out_len)) {
-            return 1;
-        }
-    }
-
-    return 0;
+void F(const fp_t k, uint8_t* msg, int msg_len, fp_t result) {
+    uint8_t k_in_b[LAMBDA];
+    uint8_t tmp[LAMBDA];
+    fp_write_bin(k_in_b, LAMBDA, k);
+    md_hmac(tmp, msg, msg_len, k_in_b, LAMBDA);
+    fp_read_bin(result, tmp, LAMBDA);
 }
 
-int f_aes_cbc_dec(const char *in_path, const char *out_path, const uint8_t *key, size_t key_len, const uint8_t *iv) {
-    FILE *fp;
-    uint8_t *ciphertxt, *plaintxt;
-    size_t in_len, out_len;
-
-    ciphertxt = (uint8_t *)read_file(in_path, in_len);
-    if (ciphertxt == NULL) {
-        return 1;
-    }
-
-    if (bc_aes_cbc_dec(plaintxt, &out_len, ciphertxt, in_len, key, key_len, iv)) {
-        if (!write_file(out_path, plaintxt, out_len)) {
-            return 1;
-        }
-    }
-
-    return 0;
+void G(uint8_t *key, uint8_t* msg, uint8_t *result) {
+    md_hmac(result, msg, FILE_DESC_LEN, key, LAMBDA);
 }
 
-int main() {
-    const char *path = "1.txt";
-    const char *enc_path = "enc.txt";
-    const char *dec_path = "dec.txt";
-    uint8_t *seed = (uint8_t *)"1234567812345678123456781234567812345678123456781234567812345678";
-    size_t key_len = 64;
-    uint8_t *key = (uint8_t *)malloc((key_len + 1) * sizeof(uint8_t));
-    uint8_t *iv = (uint8_t *)malloc((key_len + 1) * sizeof(uint8_t));
+void get_xwd(const fp_t kd, const fp_t kd_inv, uint8_t* d, uint8_t* w, fp_t result) {
+    fp_t a, b, c, g;
+    fp_read_bin(g, g_init, LAMBDA);
+    F(kd, d, FILE_DESC_LEN, a);
+    F(kd_inv, w, WORD_LEN, b);
+    fp_mul_comba(c, a, b);
+    fp_mul_comba(result, g, c);
+}
 
-    rand_init();
-    rand_seed(seed, RLC_RAND_SEED);
-    rand_bytes(key, key_len);
-    rand_bytes(iv, key_len);
+void get_ywd(uint8_t k, uint8_t* d, uint8_t* result) {
 
-    if (f_aes_cbc_enc(path, enc_path, key, key_len, iv)) {
-        cout << "Encryption Success!" << endl;
-    }
-
-    if (f_aes_cbc_dec(enc_path, dec_path, key, key_len, iv)) {
-        cout << "Decryption Success!" << endl;
-    }
-    
-    return 0;
 }

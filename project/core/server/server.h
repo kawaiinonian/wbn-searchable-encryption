@@ -1,4 +1,4 @@
-#include "../include/include.h"
+#include "include/include.h"
 
 /**
  * @brief 采用动态规划算法更新Aset
@@ -6,7 +6,7 @@
  * @param Aset 
  * @param alpha 用户上传的陷门
  */
-void Aset_update(ASET_DICT &Aset, group_element alpha);
+void Aset_update(ASET_DICT &Aset, fp_t alpha);
 
 /**
  * @brief 根据搜索令牌集获取搜索结果

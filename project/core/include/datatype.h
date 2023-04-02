@@ -1,4 +1,4 @@
-
+#include <relic/relic_fp.h>
 
 #include <string>
 #include <map>
@@ -12,30 +12,36 @@ class USER_AUTH_ITEM;
 class QUERY_ITEM;
 class XSET_ITEM;
 class ASET_ITEM;
+class USET_ITEM;
 
-typedef CryptoPP::SecByteBlock KEY;
-typedef std::map<FILE_DESC, USER_AUTH_ITEM> USER_AUTH_DICT;
+// typedef CryptoPP::SecByteBlock fp_t;
+typedef std::map<uint8_t[FILE_DESC_LEN], USER_AUTH_ITEM> USER_AUTH_DICT;
 typedef std::vector<QUERY_ITEM> QUERY_LIST;
-typedef std::vector<DOCKEY_ITEM> DOCKEY_LIST;
-typedef std::map<KEY, KEY> USET_DICT;
+typedef std::map<uint8_t[FILE_DESC_LEN], DOCKEY_ITEM> DOCKEY_DICT;
+typedef std::vector<USET_ITEM> USET_LIST;
 typedef std::vector<XSET_ITEM> XSET_LIST;
 typedef std::vector<FILE_DESC> FILE_DESC_LIST;
-typedef std::map<KEY, KEY> ASET_DICT;
+typedef std::vector<ASET_ITEM> ASET_LIST;
 // to be changed: for coding with no error
-typedef std::vector<std::string> keyword;
+// typedef std::vector<std::string> keyword;
+// typedef std::string keyword;
 
 class FILE_DESC {
     public:
-    keyword words;
+    uint8_t words[MAX_WORD][WORD_LEN];
+    int keywords_len;
     std::string dec_flag = "CORRECT";
     FILE_DESC() {
 
     } 
+    void serialize(uint8_t* result) {
+
+    }
 };
 
 class SEARCH_KEY {
     public:
-    KEY K1, K2, K3;
+    uint8_t K1[LAMBDA], K2[LAMBDA], K3[LAMBDA];
 
     SEARCH_KEY() {
 
@@ -44,7 +50,7 @@ class SEARCH_KEY {
 
 class USER_KEY {
     public:
-    KEY KU, KUT;
+    uint8_t KU[LAMBDA], KUT[LAMBDA];
 
     USER_KEY() {
 
@@ -53,8 +59,8 @@ class USER_KEY {
 
 class DOCKEY_ITEM {
     public:
-    FILE_DESC d;
-    KEY Kd, Kd_enc;
+    uint8_t Kd_enc[LAMBDA];
+    fp_t Kd;
     DOCKEY_ITEM() {
 
     }
@@ -62,7 +68,7 @@ class DOCKEY_ITEM {
 
 class USER_AUTH_ITEM {
     public:
-    KEY uid, offtok, aid;
+    fp_t uid, offtok, aid;
     //std::vector<std::byte[LAMBDA]> AList;
     USER_AUTH_ITEM() {
 
@@ -71,7 +77,7 @@ class USER_AUTH_ITEM {
 
 class QUERY_ITEM {
     public:
-    KEY uid, stk_d, aid;
+    fp_t uid, stk_d, aid;
     //std::vector<std::byte[LAMBDA]> AList;
     QUERY_ITEM() {
         
@@ -80,7 +86,8 @@ class QUERY_ITEM {
 
 class XSET_ITEM {
     public:
-    KEY xwd, ywd;
+    fp_t xwd;
+    uint8_t ywd[FILE_DESC_LEN];
     XSET_ITEM() {
 
     }
@@ -88,8 +95,13 @@ class XSET_ITEM {
 
 class ASET_ITEM {
     public:
-    KEY aid, trapgate;
+    fp_t aid, trapgate;
     ASET_ITEM() {
         
     }
+};
+
+class USET_ITEM {
+    public:
+    fp_t uid, ud;
 };
