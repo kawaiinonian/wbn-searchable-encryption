@@ -1,12 +1,16 @@
-#include "include/include.h"
+#include "../include/include.h"
+#include "../lib/method.h"
+#include <relic/relic.h>
+#include <cassert>
+#include <cstring>
 
 /**
  * @brief 采用动态规划算法更新Aset
  * 
  * @param Aset 
- * @param alpha 用户上传的陷门
+ * @param tmpAset
  */
-void Aset_update(ASET_DICT &Aset, fp_t alpha);
+void Aset_update(ASET_LIST &Aset, ASET_LIST tmpAset);
 
 /**
  * @brief 根据搜索令牌集获取搜索结果
@@ -17,5 +21,5 @@ void Aset_update(ASET_DICT &Aset, fp_t alpha);
  * @param Xset 
  * @param query_response 返回搜索结果
  */
-void search(QUERY_LIST query, ASET_DICT Aset, USET_DICT Uset, XSET_LIST Xset,
-    std::vector<std::byte[FILE_DESC_LEN]> &query_response);
+void search(QUERY_LIST query, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,
+    std::vector<uint8_t[FILE_DESC_LEN]> &query_response);

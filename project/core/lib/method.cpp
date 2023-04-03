@@ -5,13 +5,13 @@ void setting_init() {
     fp_param_set(NIST_256);
 }
 
-void F(uint8_t *key, uint8_t* msg, fp_t result) {
+void F(uint8_t *key, uint8_t *msg, fp_t result) {
     uint8_t tmp[LAMBDA] = {0};
     G(tmp, msg, key);
     fp_read_bin(result, tmp, LAMBDA);
 }
 
-void F(const fp_t k, uint8_t* msg, int msg_len, fp_t result) {
+void F(const fp_t k, uint8_t *msg, int msg_len, fp_t result) {
     uint8_t k_in_b[LAMBDA];
     uint8_t tmp[LAMBDA];
     fp_write_bin(k_in_b, LAMBDA, k);
@@ -19,19 +19,19 @@ void F(const fp_t k, uint8_t* msg, int msg_len, fp_t result) {
     fp_read_bin(result, tmp, LAMBDA);
 }
 
-void G(uint8_t *key, uint8_t* msg, uint8_t *result) {
+void G(uint8_t *key, uint8_t *msg, uint8_t *result) {
     md_hmac(result, msg, FILE_DESC_LEN, key, LAMBDA);
 }
 
-void get_xwd(const fp_t kd, const fp_t kd_inv, uint8_t* d, uint8_t* w, fp_t result) {
+void get_xwd(const fp_t kd, const fp_t kd_inv, uint8_t *d, uint8_t *w, fp_t result) {
     fp_t a, b, c, g;
     fp_read_bin(g, g_init, LAMBDA);
-    F(kd, d, FILE_DESC_LEN, a);
-    F(kd_inv, w, WORD_LEN, b);
+    F(kd_inv, d, FILE_DESC_LEN, a);
+    F(kd, w, WORD_LEN, b);
     fp_mul_comba(c, a, b);
     fp_mul_comba(result, g, c);
 }
 
-void get_ywd(uint8_t k, uint8_t* d, uint8_t* result) {
-
+void get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
+    
 }
