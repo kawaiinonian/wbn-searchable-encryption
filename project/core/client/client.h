@@ -1,10 +1,6 @@
-#include "include/include.h"
-#include "lib/method.h"
+#include "../include/include.h"
+#include "../lib/method.h"
 #include <relic/relic.h>
-#include <string>
-#include <map>
-#include <vector>
-
 
 /***************************************
  * @brief 生成加密的文件索引

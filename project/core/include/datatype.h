@@ -34,7 +34,7 @@ class FILE_DESC {
     FILE_DESC() {
 
     } 
-    void serialize(uint8_t* result) {
+    void serialize(uint8_t *result) {
 
     }
 };
@@ -77,6 +77,7 @@ class USER_AUTH_ITEM {
 
 class QUERY_ITEM {
     public:
+    int aid_flag;
     fp_t uid, stk_d, aid;
     //std::vector<std::byte[LAMBDA]> AList;
     QUERY_ITEM() {
@@ -96,6 +97,8 @@ class XSET_ITEM {
 class ASET_ITEM {
     public:
     fp_t aid, trapgate;
+    fp_t f_aid;
+    std::vector<fp_t> c_aid;
     ASET_ITEM() {
         
     }
