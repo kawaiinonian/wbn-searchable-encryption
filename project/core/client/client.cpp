@@ -7,8 +7,10 @@
 // byte ? 
 // SecByteBlock for Enc ? 
 typedef std::vector<XSET_ITEM> XSET_LIST;
-typedef std::map<uint8_t [2048], DOCKEY_ITEM> DOCKEY_DICT;
+typedef std::map<uint8_t*, DOCKEY_ITEM> DOCKEY_DICT;
 typedef std::vector<USET_ITEM> USET_LIST;
+typedef std::map<uint8_t*, USER_AUTH_ITEM> USER_AUTH_DICT;
+
 
 void updateData_generate(SEARCH_KEY skey, FILE_DESC_LIST DOC, 
     XSET_LIST &Xset_to_server) {
@@ -39,7 +41,9 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC,
     for (int i = 0; i < DOC.size(); i++) {
         USET_ITEM tmp_uset_item;
         DOCKEY_ITEM tmp_doc_item;
-        uint8_t d[FILE_DESC_LEN] = {0};
+        // uint8_t d[FILE_DESC_LEN] = {0};
+        uint8_t* d = new uint8_t[FILE_DESC_LEN];
+        memset(d, 0, sizeof(d));
         DOC[i].serialize(d);
         fp_t Kd_inv;
         F(skey.K1, d, tmp_doc_item.Kd);
@@ -51,7 +55,7 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC,
         F(ukey.KU, d, tmp_kud);
         fp_inv_binar(tmp_kud_inv, tmp_kud);
         fp_mul_comba(tmp_uset_item.ud, tmp_kdd, tmp_kud_inv);
-        key_to_user.insert(std::pair<uint8_t[FILE_DESC_LEN], DOCKEY_ITEM>(d, tmp_doc_item));
+        key_to_user.insert(std::make_pair(d, tmp_doc_item));
         uset_to_server.push_back(tmp_uset_item);
     }
 
@@ -69,15 +73,29 @@ void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST 
     F(A_ukey.KU, ub, tmp_alpha);
     fp_inv_binar(tmp_Aset_to_server.trapgate, tmp_alpha);
     for (int i = 0; i < DOC.size(); i++) {
-        uint8_t d[FILE_DESC_LEN] = {0};
+        uint8_t *d = new uint8_t[FILE_DESC_LEN];
+        memset(d, 0, sizeof(d));
+        USER_AUTH_ITEM tmp_user_auth;
         DOC[i].serialize(d);
+        fp_t tmp_tok;
         if (User_AuthA.find(d) == User_AuthA.end()) {
-            
+            F(A_ukey.KUT, d, tmp_user_auth.uid);
+            fp_t tmp_kuad, tmp_kuau, g, tmp;
+            F(A_ukey.KU, d, tmp_kuad);
+            F(A_ukey.KU, ub, LAMBDA, tmp_kuau);
+            fp_read_bin(g, g_init, LAMBDA);
+            fp_mul_comba(tmp, g, tmp_kuad);
+            fp_mul_comba(tmp_user_auth.offtok, tmp, tmp_kuau);
         } else {
-            
+            fp_t tmp_kuau;
+            F(A_ukey.KU, ub, LAMBDA, tmp_kuau);
+            fp_mul_comba(tmp_user_auth.offtok, User_AuthA.find(d)->second.offtok, tmp_kuau);
+            memcpy(tmp_user_auth.uid, User_AuthA.find(d)->second.uid, sizeof(fp_t));
         }
+        F(A_ukey.KUT, ub, tmp_user_auth.aid);
+        auth_to_userB.insert(std::make_pair(d, tmp_user_auth));
+        key_to_userB.insert(std::make_pair(d, Doc_KeyA.find(d)->second));
     }
-
     return;
 }
 

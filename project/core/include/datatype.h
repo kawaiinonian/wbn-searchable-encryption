@@ -15,9 +15,9 @@ class ASET_ITEM;
 class USET_ITEM;
 
 // typedef CryptoPP::SecByteBlock fp_t;
-typedef std::map<uint8_t[FILE_DESC_LEN], USER_AUTH_ITEM> USER_AUTH_DICT;
+typedef std::map<uint8_t*, USER_AUTH_ITEM> USER_AUTH_DICT;
 typedef std::vector<QUERY_ITEM> QUERY_LIST;
-typedef std::map<uint8_t[FILE_DESC_LEN], DOCKEY_ITEM> DOCKEY_DICT;
+typedef std::map<uint8_t*, DOCKEY_ITEM> DOCKEY_DICT;
 typedef std::vector<USET_ITEM> USET_LIST;
 typedef std::vector<XSET_ITEM> XSET_LIST;
 typedef std::vector<FILE_DESC> FILE_DESC_LIST;

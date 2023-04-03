@@ -19,6 +19,12 @@ void F(const fp_t k, uint8_t* msg, int msg_len, fp_t result) {
     fp_read_bin(result, tmp, LAMBDA);
 }
 
+void F(const uint8_t* key, uint8_t* msg, int msg_len, fp_t result) {
+    uint8_t tmp[LAMBDA];
+    md_hmac(tmp, msg, msg_len, key, LAMBDA);
+    fp_read_bin(result, tmp, LAMBDA);
+}
+
 void G(uint8_t *key, uint8_t* msg, uint8_t *result) {
     md_hmac(result, msg, FILE_DESC_LEN, key, LAMBDA);
 }
