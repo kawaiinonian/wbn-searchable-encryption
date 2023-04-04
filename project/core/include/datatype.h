@@ -68,7 +68,7 @@ class DOCKEY_ITEM {
 
 class USER_AUTH_ITEM {
     public:
-    fp_t uid, offtok, aid;
+    fp_t uid, offtok;
     //std::vector<std::byte[LAMBDA]> AList;
     USER_AUTH_ITEM() {
 
@@ -78,7 +78,7 @@ class USER_AUTH_ITEM {
 class QUERY_ITEM {
     public:
     int aid_flag;
-    fp_t uid, stk_d, aid;
+    fp_t uid, stk_d;
     //std::vector<std::byte[LAMBDA]> AList;
     QUERY_ITEM() {
         
@@ -96,9 +96,8 @@ class XSET_ITEM {
 
 class ASET_ITEM {
     public:
-    fp_t aid, trapgate;
-    fp_t f_aid;
-    std::vector<fp_t> c_aid;
+    fp_t aid, trapgate, f_aid;
+    // std::vector<fp_t> c_aid;
     ASET_ITEM() {
         
     }

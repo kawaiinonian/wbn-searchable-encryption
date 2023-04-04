@@ -27,16 +27,18 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC,
 * @brief 由DU授权给DU
 * @param A_ukey 授权DU的密钥组
 * @param B_ukey 被授权DU的密钥组
-* @param ub
+* @param ub 被授权DU的uid
 * @param DOC 要授权的文件标识符集
 * @param User_AuthA 授权DU的被授权信息字典，组织形式为 文件标识符d-被授权信息组
 * @param Dok_KeyA 授权DU的文件密钥集
+* @param f_aid 授权DU持有的aid
+* @param n_aid 将返回给被授权DU的aid
 * @param auth_to_userB 返回给被授权DU的被授权信息字典
 * @param key_to_userB 返回给被授权DU的文件密钥集
 * @param tmp_Aset_to_server 返回给服务器的Aset授权关系更新信息
 ****************************************/
 void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST DOC, 
-    USER_AUTH_DICT User_AuthA, DOCKEY_DICT Doc_KeyA, 
+    USER_AUTH_DICT User_AuthA, DOCKEY_DICT Doc_KeyA, fp_t f_aid, fp_t n_aid,
     USER_AUTH_DICT &auth_to_userB, DOCKEY_DICT &key_to_userB,
     ASET_ITEM &tmp_Aset_to_server);
 
