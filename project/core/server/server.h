@@ -16,10 +16,11 @@ void Aset_update(ASET_LIST &Aset, ASET_LIST tmpAset);
  * @brief 根据搜索令牌集获取搜索结果
  * 
  * @param query 搜索令牌集
+ * @param aid
  * @param Aset 
  * @param Uset 
  * @param Xset 
  * @param query_response 返回搜索结果
  */
-void search(QUERY_LIST query, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,
+void search(QUERY_LIST query, fp_t aid, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,
     std::vector<uint8_t[FILE_DESC_LEN]> &query_response);

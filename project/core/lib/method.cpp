@@ -47,5 +47,6 @@ void get_xwd(const fp_t kd, const fp_t kd_inv, uint8_t *d, uint8_t *w, fp_t resu
 }
 
 void get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
-    
+    size_t size = FILE_DESC_LEN;
+    bc_aes_cbc_enc(result, &size, d, FILE_DESC_LEN, k, LAMBDA, IV);
 }
