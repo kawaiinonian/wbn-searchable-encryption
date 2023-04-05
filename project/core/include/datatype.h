@@ -14,7 +14,6 @@ class XSET_ITEM;
 class ASET_ITEM;
 class USET_ITEM;
 
-// typedef CryptoPP::SecByteBlock fp_t;
 typedef std::map<uint8_t*, USER_AUTH_ITEM> USER_AUTH_DICT;
 typedef std::vector<QUERY_ITEM> QUERY_LIST;
 typedef std::map<uint8_t*, DOCKEY_ITEM> DOCKEY_DICT;
@@ -133,7 +132,7 @@ class XSET_ITEM {
 class ASET_ITEM {
     public:
     fp_t aid, trapgate, f_aid;
-    // std::vector<fp_t> c_aid;
+    std::vector<uint64_t *> c_aid;
     ASET_ITEM() {
         memset(aid, 0, sizeof(aid));
         memset(trapgate, 0, sizeof(trapgate));

@@ -8,9 +8,9 @@
  * @brief 采用动态规划算法更新Aset
  * 
  * @param Aset 
- * @param tmpAset
+ * @param aitem
  */
-void Aset_update(ASET_LIST &Aset, ASET_LIST tmpAset);
+void Aset_update(ASET_LIST &Aset, ASET_ITEM aitem);
 
 /**
  * @brief 根据搜索令牌集获取搜索结果
@@ -23,4 +23,8 @@ void Aset_update(ASET_LIST &Aset, ASET_LIST tmpAset);
  * @param query_response 返回搜索结果
  */
 void search(QUERY_LIST query, fp_t aid, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,
+<<<<<<< HEAD
     std::vector<uint8_t[FILE_DESC_LEN]> &query_response);
+=======
+    std::vector<uint8_t *> &query_response);
+>>>>>>> secreu
