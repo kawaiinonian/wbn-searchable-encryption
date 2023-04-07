@@ -6,6 +6,7 @@ typedef std::map<uint8_t*, DOCKEY_ITEM> DOCKEY_DICT;
 typedef std::vector<USET_ITEM> USET_LIST;
 typedef std::map<uint8_t*, USER_AUTH_ITEM> USER_AUTH_DICT;
 typedef std::vector<QUERY_ITEM> QUERY_LIST;
+typedef std::vector<FILE_DESC> FILE_DESC_LIST;
 #endif
 
 void updateData_generate(SEARCH_KEY skey, FILE_DESC_LIST DOC, 
@@ -28,6 +29,20 @@ void updateData_generate(SEARCH_KEY skey, FILE_DESC_LIST DOC,
         }
     }
     return;
+}
+
+void update_interface(SEARCH_KEY skey, fd *fd_input[], int input_len, uint8_t *ret) {
+    FILE_DESC_LIST doc;
+    XSET_LIST xset;
+    for (int i = 0; i < input_len; i++) {
+        doc.push_back(FILE_DESC(fd_input[i]));
+    }
+    updateData_generate(skey, doc, xset);
+    XSET_ITEM *item_ptr = xset.data();
+    for (int i = 0; i < xset.size(); i++) {
+        memcpy(ret+2*i*sizeof(fp_t), item_ptr[i].xwd, sizeof(fp_t));
+        memcpy(ret+(2*i+1)*sizeof(fp_t), item_ptr[i].ywd, sizeof(fp_t));
+    }
 }
 
 

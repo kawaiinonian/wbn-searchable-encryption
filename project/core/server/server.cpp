@@ -1,4 +1,7 @@
 #include <server.h>
+#ifdef DEBUG
+typedef std::vector<ASET_ITEM> ASET_LIST;
+#endif
 
 void Aset_update(ASET_LIST &Aset, ASET_ITEM aitem) {
     int i, j, k;

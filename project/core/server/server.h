@@ -23,8 +23,4 @@ void Aset_update(ASET_LIST &Aset, ASET_ITEM aitem);
  * @param query_response 返回搜索结果
  */
 void search(QUERY_LIST query, fp_t aid, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,
-<<<<<<< HEAD
-    std::vector<uint8_t[FILE_DESC_LEN]> &query_response);
-=======
     std::vector<uint8_t *> &query_response);
->>>>>>> secreu

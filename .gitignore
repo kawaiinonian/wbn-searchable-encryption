@@ -3,3 +3,6 @@ rand
 rand.cpp
 test.cpp
 test
+test.py
+test.so
+.gitignore

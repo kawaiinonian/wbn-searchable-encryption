@@ -25,22 +25,29 @@ typedef std::vector<ASET_ITEM> ASET_LIST;
 // typedef std::vector<std::string> keyword;
 // typedef std::string keyword;
 
+struct fd {
+    uint8_t words[MAX_WORD][WORD_LEN];
+    int keywords_len;
+    char path[PATH_LEN];
+};
+
 class FILE_DESC {
     public:
     uint8_t words[MAX_WORD][WORD_LEN];
     int keywords_len;
     char path[PATH_LEN];
     uint8_t dec_flag[8] = "CORRECT";
-    FILE_DESC() {
+    FILE_DESC(void) {
         memset(words, 0, sizeof(words));
         memset(path, 0, sizeof(path));
         keywords_len = 0;
     } 
-    ~FILE_DESC() {
-        delete words;
-        delete &keywords_len;
-        delete path;
-        delete dec_flag;
+    FILE_DESC(fd *input) {
+        for (int i = 0; i < input->keywords_len; i++) {
+            memcpy(words[i], input->words[i], WORD_LEN);
+        }
+        keywords_len = input->keywords_len;
+        memcpy(path, input->path, PATH_LEN);
     }
     void serialize(uint8_t *result) {
         memcpy(result, words, sizeof(words));
@@ -54,13 +61,15 @@ class SEARCH_KEY {
     public:
     uint8_t K1[LAMBDA], K2[LAMBDA], K3[LAMBDA];
 
-    SEARCH_KEY() {
+    SEARCH_KEY(void) {
         memset(K1, 0, sizeof(K1));
         memset(K2, 0, sizeof(K2));
         memset(K3, 0, sizeof(K3));
     }
-    ~SEARCH_KEY() {
-        delete K1, K2, K3;
+    SEARCH_KEY(uint8_t* _K1, uint8_t* _K2, uint8_t* _K3) {
+        memcpy(K1, _K1, LAMBDA);
+        memcpy(K2, _K2, LAMBDA);
+        memcpy(K3, _K3, LAMBDA);
     }
 };
 
@@ -72,9 +81,6 @@ class USER_KEY {
         memset(KU, 0, sizeof(KU));
         memset(KUT, 0, sizeof(KUT));
     }
-    ~USER_KEY() {
-        delete KU, KUT;
-    }
 };
 
 class DOCKEY_ITEM {
@@ -84,9 +90,6 @@ class DOCKEY_ITEM {
     DOCKEY_ITEM() {
         memset(Kd_enc, 0, sizeof(Kd_enc));
         memset(Kd, 0, sizeof(Kd));
-    }
-    ~DOCKEY_ITEM() {
-        delete Kd_enc, Kd;
     }
 };
 
@@ -98,9 +101,6 @@ class USER_AUTH_ITEM {
         memset(uid, 0, sizeof(uid));
         memset(offtok, 0, sizeof(offtok));
     }
-    ~USER_AUTH_ITEM() {
-        delete uid, offtok;
-    }
 };
 
 class QUERY_ITEM {
@@ -111,9 +111,6 @@ class QUERY_ITEM {
         memset(uid, 0, sizeof(uid));
         memset(stk_d, 0, sizeof(stk_d));
     }
-    ~QUERY_ITEM() {
-        delete uid, stk_d;
-    }
 };
 
 class XSET_ITEM {
@@ -123,9 +120,6 @@ class XSET_ITEM {
     XSET_ITEM() {
         memset(xwd, 0, sizeof(xwd));
         memset(ywd, 0, sizeof(ywd));
-    }
-    ~XSET_ITEM() {
-        delete xwd, ywd;
     }
 };
 
@@ -138,9 +132,6 @@ class ASET_ITEM {
         memset(trapgate, 0, sizeof(trapgate));
         memset(f_aid, 0, sizeof(f_aid));
     }
-    ~ASET_ITEM() {
-        delete aid, trapgate, f_aid;
-    }
 };
 
 class USET_ITEM {
@@ -149,8 +140,5 @@ class USET_ITEM {
     USET_ITEM() {
         memset(uid, 0, sizeof(uid));
         memset(ud, 0, sizeof(ud));
-    }
-    ~USET_ITEM() {
-        delete uid, ud;
     }
 };
