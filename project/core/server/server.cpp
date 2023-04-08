@@ -93,5 +93,11 @@ int main() {
     Aset.push_back(a1);
     Aset.push_back(a2);
 
+    ASET_ITEM in;
+    memset(in.aid, 1, LAMBDA);
+    memset(in.trapgate, 1, LAMBDA);
+    memset(in.f_aid, 0, LAMBDA);
+    Aset_update(Aset, in);
+
     return 0;
 }
