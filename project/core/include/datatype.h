@@ -1,8 +1,15 @@
+#include "const.h"
+
+extern "C" {
 #include <relic/relic_fp.h>
+}
 
 #include <string>
 #include <map>
 #include <vector>
+
+#include <cassert>
+#include <cstring>
 
 class FILE_DESC;
 class SEARCH_KEY;

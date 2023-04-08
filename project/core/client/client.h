@@ -1,6 +1,8 @@
+#ifndef _HEAD_INC_
 #include "../include/include.h"
+#endif
+
 #include "../lib/method.h"
-#include <relic/relic.h>
 
 /***************************************
  * @brief 生成加密的文件索引
