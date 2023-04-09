@@ -1,5 +1,6 @@
-#include "include/include.h"
-#include <relic/relic.h>
+#ifndef _HEAD_INC_
+#include "../include/include.h"
+#endif
 
 void F(uint8_t *key, uint8_t* msg, fp_t result);
 void F(const fp_t k, uint8_t* msg, int msg_len, fp_t result);

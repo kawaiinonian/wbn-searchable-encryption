@@ -1,4 +1,4 @@
-#include <server.h>
+#include "server.h"
 #ifdef DEBUG
 typedef std::vector<ASET_ITEM> ASET_LIST;
 #endif
@@ -75,4 +75,29 @@ void search(QUERY_LIST query, fp_t aid, ASET_LIST Aset, USET_LIST Uset, XSET_LIS
     }
 
     return;
+}
+
+int main() {
+    ASET_LIST Aset;
+    ASET_ITEM a1, a2;
+
+    setting_init();
+
+    memset(a1.aid, 0, LAMBDA);
+    memset(a1.trapgate, 0, LAMBDA);
+
+    memset(a2.aid, 1, LAMBDA);
+    memset(a1.trapgate, 1, LAMBDA);
+    memset(a2.f_aid, 0, LAMBDA);
+
+    Aset.push_back(a1);
+    Aset.push_back(a2);
+
+    ASET_ITEM in;
+    memset(in.aid, 1, LAMBDA);
+    memset(in.trapgate, 1, LAMBDA);
+    memset(in.f_aid, 0, LAMBDA);
+    Aset_update(Aset, in);
+
+    return 0;
 }

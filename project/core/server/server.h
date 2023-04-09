@@ -1,8 +1,8 @@
+#ifndef _HEAD_INC_
 #include "../include/include.h"
+#endif
+
 #include "../lib/method.h"
-#include <relic/relic.h>
-#include <cassert>
-#include <cstring>
 
 /**
  * @brief 采用动态规划算法更新Aset

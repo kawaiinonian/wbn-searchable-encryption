@@ -1,4 +1,4 @@
-#include "lib/method.h"
+#include "method.h"
 
 void setting_init() {
     core_init();
@@ -8,14 +8,6 @@ void setting_init() {
 void F(uint8_t *key, uint8_t *msg, fp_t result) {
     uint8_t tmp[LAMBDA] = {0};
     G(tmp, msg, key);
-    fp_read_bin(result, tmp, LAMBDA);
-}
-
-void F(const fp_t k, uint8_t *msg, int msg_len, fp_t result) {
-    uint8_t k_in_b[LAMBDA];
-    uint8_t tmp[LAMBDA];
-    fp_write_bin(k_in_b, LAMBDA, k);
-    md_hmac(tmp, msg, msg_len, k_in_b, LAMBDA);
     fp_read_bin(result, tmp, LAMBDA);
 }
 
