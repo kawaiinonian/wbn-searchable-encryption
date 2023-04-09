@@ -40,7 +40,9 @@ void update_interface(SEARCH_KEY skey, fd *fd_input[], int input_len, uint8_t *r
     updateData_generate(skey, doc, xset);
     XSET_ITEM *item_ptr = xset.data();
     for (int i = 0; i < xset.size(); i++) {
-        memcpy(ret+2*i*sizeof(fp_t), item_ptr[i].xwd, sizeof(fp_t));
+        fp_write_bin(ret+2*i*sizeof(fp_t), LAMBDA, item_ptr[i].xwd);
+        // fp_write_bin(ret+(2*i+1)*sizeof(fp_t), LAMBDA, item_ptr[i].ywd);
+        // memcpy(ret+2*i*sizeof(fp_t), item_ptr[i].xwd, sizeof(fp_t));
         memcpy(ret+(2*i+1)*sizeof(fp_t), item_ptr[i].ywd, sizeof(fp_t));
     }
 }
@@ -72,6 +74,25 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC,
     return;
 }
 
+void online_auth_interface(SEARCH_KEY skey, USER_KEY ukey, fd* fd_input[], int input_len,
+    uint8_t* key2usr, uint8_t* uset2server) {
+    FILE_DESC_LIST doc;
+    DOCKEY_DICT tmp_key;
+    USET_LIST tmp_uset;
+    for (int i = 0; i < input_len; i++) {
+        doc.push_back(FILE_DESC(fd_input[i]));
+    }
+    online_auth(skey, ukey, doc, tmp_key, tmp_uset);
+    for (int i = 0; i < input_len; i++) {
+        uint8_t* d = new uint8_t[FILE_DESC_LEN];
+        doc[i].serialize(d);
+        memcpy(key2usr+i*(FILE_DESC_LEN+2*LAMBDA), d, FILE_DESC_LEN);
+        memcpy(key2usr+i*(FILE_DESC_LEN+2*LAMBDA)+FILE_DESC_LEN, tmp_key.find(d)->second.Kd_enc, LAMBDA);
+        fp_write_bin(key2usr+i*(FILE_DESC_LEN+2*LAMBDA)+FILE_DESC_LEN+LAMBDA, LAMBDA, tmp_key.find(d)->second.Kd);
+        fp_write_bin(uset2server+2*i*LAMBDA, LAMBDA, tmp_uset[i].ud);
+        fp_write_bin(uset2server+(2*i+1)*LAMBDA, LAMBDA, tmp_uset[i].uid);
+    }
+}
 
 void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST DOC, 
     USER_AUTH_DICT User_AuthA, DOCKEY_DICT Doc_KeyA, fp_t f_aid, fp_t &n_aid,
@@ -110,6 +131,10 @@ void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST 
     return;
 }
 
+void offline_auth_interface() {
+
+}
+
 
 void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY_DICT Doc_Key,
     USER_AUTH_DICT User_Auth, QUERY_LIST &query_list) {
@@ -139,3 +164,4 @@ void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY_DICT Doc_Key,
     return;
 }
 
+void search_interface(uint8_t* word, USER_KEY ukey, )

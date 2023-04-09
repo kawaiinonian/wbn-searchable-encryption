@@ -8,16 +8,23 @@ MAX_WORD = 32
 PATH_LEN = 64
 FILE_DESC_LEN = 1100
 
-type_key = c_uint8 * LAMBDA
-type_word = c_uint8 * WORD_LEN
+type_key = c_ubyte * LAMBDA
+type_word = c_ubyte * WORD_LEN
 type_words = type_word * MAX_WORD
-type_path = c_uint8 * PATH_LEN
+type_path = c_ubyte * PATH_LEN
+type_d = c_ubyte * FILE_DESC_LEN
 
 class SEARCH_KEY(Structure):
     _fields_ = [
         ("k1", type_key),
         ("k2", type_key),
         ("k3", type_key),
+    ]
+
+class USER_KEY(Structure):
+    _fields_ = [
+        ("ku", type_key),
+        ("kut", type_key),
     ]
 
 

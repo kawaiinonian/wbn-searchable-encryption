@@ -25,11 +25,20 @@ typedef std::vector<ASET_ITEM> ASET_LIST;
 // typedef std::vector<std::string> keyword;
 // typedef std::string keyword;
 
-struct fd {
+typedef struct {
     uint8_t words[MAX_WORD][WORD_LEN];
     int keywords_len;
     char path[PATH_LEN];
-};
+}fd;
+
+typedef struct {
+    uint8_t d[FILE_DESC_LEN];
+    uint8_t kd_enc[LAMBDA], kd[LAMBDA];
+}dockey;
+
+typedef struct {
+    uint8_t ud[LAMBDA], uid[LAMBDA];
+}uset;
 
 class FILE_DESC {
     public:
