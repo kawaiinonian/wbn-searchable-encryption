@@ -47,6 +47,20 @@ typedef struct {
     uint8_t ud[LAMBDA], uid[LAMBDA];
 }uset;
 
+typedef struct {
+    uint8_t d[FILE_DESC_LEN];
+    uint8_t uid[LAMBDA], offtok[LAMBDA];
+}userauth;
+
+typedef struct {
+    uint8_t d[FILE_DESC_LEN];
+    uint8_t kd[LAMBDA], kd_enc[LAMBDA];
+}dockey;
+
+typedef struct {
+    uint8_t uid[LAMBDA], stk_d[LAMBDA];
+}query;
+
 class FILE_DESC {
     public:
     uint8_t words[MAX_WORD][WORD_LEN];
@@ -107,6 +121,10 @@ class DOCKEY_ITEM {
         memset(Kd_enc, 0, sizeof(Kd_enc));
         memset(Kd, 0, sizeof(Kd));
     }
+    DOCKEY_ITEM(uint8_t* _Kd_enc, uint8_t* _Kd) {
+        memcpy(Kd_enc, _Kd_enc, LAMBDA);
+        fp_read_bin(Kd, _Kd, LAMBDA);
+    }
 };
 
 class USER_AUTH_ITEM {
@@ -116,6 +134,10 @@ class USER_AUTH_ITEM {
     USER_AUTH_ITEM() {
         memset(uid, 0, sizeof(uid));
         memset(offtok, 0, sizeof(offtok));
+    }
+    USER_AUTH_ITEM(uint8_t *_uid, uint8_t* _offtok) {
+        fp_read_bin(uid, _uid, LAMBDA);
+        fp_read_bin(offtok, _offtok, LAMBDA);
     }
 };
 

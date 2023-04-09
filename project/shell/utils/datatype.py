@@ -34,3 +34,17 @@ class FILE_DESC(Structure):
         ("keywords_len", c_int),
         ("path", type_path),
     ]
+
+class DOC_KEY(Structure):
+    _fields_ = [
+        ("d", type_d),
+        ("kd_enc", type_key),
+        ("kd", type_key),
+    ]
+
+class USER_AUTH(Structure):
+    _fields_ = [
+        ("d", type_d),
+        ("uid", type_key),
+        ("offtok", type_key),        
+    ]

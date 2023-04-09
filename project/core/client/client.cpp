@@ -75,7 +75,7 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC,
 }
 
 void online_auth_interface(SEARCH_KEY skey, USER_KEY ukey, fd* fd_input[], int input_len,
-    uint8_t* key2usr, uint8_t* uset2server) {
+    dockey** key2usr, uint8_t* uset2server) {
     FILE_DESC_LIST doc;
     DOCKEY_DICT tmp_key;
     USET_LIST tmp_uset;
@@ -86,16 +86,17 @@ void online_auth_interface(SEARCH_KEY skey, USER_KEY ukey, fd* fd_input[], int i
     for (int i = 0; i < input_len; i++) {
         uint8_t* d = new uint8_t[FILE_DESC_LEN];
         doc[i].serialize(d);
-        memcpy(key2usr+i*(FILE_DESC_LEN+2*LAMBDA), d, FILE_DESC_LEN);
-        memcpy(key2usr+i*(FILE_DESC_LEN+2*LAMBDA)+FILE_DESC_LEN, tmp_key.find(d)->second.Kd_enc, LAMBDA);
-        fp_write_bin(key2usr+i*(FILE_DESC_LEN+2*LAMBDA)+FILE_DESC_LEN+LAMBDA, LAMBDA, tmp_key.find(d)->second.Kd);
+        memcpy(key2usr[i]->d, d, FILE_DESC_LEN);
+        memcpy(key2usr[i]->kd_enc, tmp_key.find(d)->second.Kd_enc, LAMBDA);
+        fp_write_bin(key2usr[i]->kd, LAMBDA, tmp_key.find(d)->second.Kd);
         fp_write_bin(uset2server+2*i*LAMBDA, LAMBDA, tmp_uset[i].ud);
         fp_write_bin(uset2server+(2*i+1)*LAMBDA, LAMBDA, tmp_uset[i].uid);
+        delete d;
     }
 }
 
 void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST DOC, 
-    USER_AUTH_DICT User_AuthA, DOCKEY_DICT Doc_KeyA, fp_t f_aid, fp_t &n_aid,
+    USER_AUTH_DICT User_AuthA, DOCKEY_DICT Doc_KeyA, fp_t f_aid, fp_t n_aid,
     USER_AUTH_DICT &auth_to_userB, DOCKEY_DICT &key_to_userB,
     ASET_ITEM &tmp_Aset_to_server) {
 
@@ -131,8 +132,36 @@ void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST 
     return;
 }
 
-void offline_auth_interface() {
+void offline_auth_interface(USER_KEY aukey, USER_KEY bukey, uint8_t ub[], fd* fd_input[],
+    int input_len, userauth* usrautha[], dockey* dk[], uint8_t _f_aid[], uint8_t _n_aid[],
+    userauth **usrauthb, dockey **dk2usr, uint8_t* aset2server) {
 
+    FILE_DESC_LIST doc;
+    USER_AUTH_DICT user_auth_a, auth2userb;
+    DOCKEY_DICT doc_keya, key2userb;
+    ASET_ITEM tmp_aset;
+    for (int i = 0; i < input_len; i++) {
+        doc.push_back(FILE_DESC(fd_input[i]));
+        user_auth_a.insert(std::make_pair(usrautha[i]->d, USER_AUTH_ITEM(usrautha[i]->uid, usrautha[i]->offtok)));
+        doc_keya.insert(std::make_pair(dk[i]->d, DOCKEY_ITEM(dk[i]->kd_enc, dk[i]->kd)));
+    }
+    fp_t f_aid, n_aid;
+    fp_read_bin(f_aid, _f_aid, LAMBDA);
+    offline_auth(aukey, bukey, ub, doc, user_auth_a, doc_keya, f_aid, n_aid, auth2userb, key2userb, tmp_aset);
+    fp_write_bin(_f_aid, LAMBDA, f_aid);
+    for (int i = 0; i < input_len; i++) {
+        uint8_t *d = new uint8_t[FILE_DESC_LEN];
+        memcpy(usrauthb[i]->d, d, FILE_DESC_LEN);
+        fp_write_bin(usrauthb[i]->uid, LAMBDA, auth2userb.find(d)->second.uid);
+        fp_write_bin(usrauthb[i]->offtok, LAMBDA, auth2userb.find(d)->second.offtok);
+        memcpy(dk2usr[i]->d, d, FILE_DESC_LEN);
+        memcpy(dk2usr[i]->kd_enc, key2userb.find(d)->second.Kd_enc, LAMBDA);
+        fp_write_bin(dk2usr[i]->kd, LAMBDA, key2userb.find(d)->second.Kd);
+        delete d;
+    }
+    fp_write_bin(aset2server, LAMBDA, tmp_aset.aid);
+    fp_write_bin(aset2server + LAMBDA, LAMBDA, tmp_aset.f_aid);
+    fp_write_bin(aset2server + LAMBDA*2, LAMBDA, tmp_aset.trapgate);
 }
 
 
@@ -164,4 +193,19 @@ void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY_DICT Doc_Key,
     return;
 }
 
-void search_interface(uint8_t* word, USER_KEY ukey, )
+void search_interface(uint8_t* word, USER_KEY ukey, dockey* dk[], 
+    int len, userauth* ua[], uint8_t *q) {
+    DOCKEY_DICT doc;
+    USER_AUTH_DICT usr_au;
+    QUERY_LIST _q;
+    for (int i = 0; i < len; i++) {
+        doc.insert(std::make_pair(dk[i]->d, DOCKEY_ITEM(dk[i]->kd_enc, dk[i]->kd)));
+        usr_au.insert(std::make_pair(ua[i]->d, USER_AUTH_ITEM(ua[i]->uid, ua[i]->offtok)));
+
+    }
+    search_generate(word, ukey, doc, usr_au, _q);
+    for (int i = 0; i < _q.size(); i++) {
+        fp_write_bin(q + 2*i * LAMBDA, LAMBDA, _q[i].uid);
+        fp_write_bin(q + (2*i+1) * LAMBDA, LAMBDA, _q[i].stk_d);
+    }
+}
