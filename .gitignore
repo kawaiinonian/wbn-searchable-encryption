@@ -6,3 +6,5 @@ test
 test.py
 test.so
 .gitignore
+project/shell/client/__pycache__/
+project/shell/utils/__pycache__/

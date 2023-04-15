@@ -20,10 +20,11 @@ class QUERY_ITEM;
 class XSET_ITEM;
 class ASET_ITEM;
 class USET_ITEM;
+class file;
 
-typedef std::map<uint8_t*, USER_AUTH_ITEM> USER_AUTH_DICT;
+typedef std::map<file, USER_AUTH_ITEM> USER_AUTH_DICT;
 typedef std::vector<QUERY_ITEM> QUERY_LIST;
-typedef std::map<uint8_t*, DOCKEY_ITEM> DOCKEY_DICT;
+typedef std::map<file, DOCKEY_ITEM> DOCKEY_DICT;
 typedef std::vector<USET_ITEM> USET_LIST;
 typedef std::vector<XSET_ITEM> XSET_LIST;
 typedef std::vector<FILE_DESC> FILE_DESC_LIST;
@@ -52,10 +53,6 @@ typedef struct {
     uint8_t uid[LAMBDA], offtok[LAMBDA];
 }userauth;
 
-typedef struct {
-    uint8_t d[FILE_DESC_LEN];
-    uint8_t kd[LAMBDA], kd_enc[LAMBDA];
-}dockey;
 
 typedef struct {
     uint8_t uid[LAMBDA], stk_d[LAMBDA];
@@ -73,6 +70,8 @@ class FILE_DESC {
         keywords_len = 0;
     } 
     FILE_DESC(fd *input) {
+        memset(words, 0, sizeof(words));
+        memset(path, 0, sizeof(path));
         for (int i = 0; i < input->keywords_len; i++) {
             memcpy(words[i], input->words[i], WORD_LEN);
         }
@@ -84,6 +83,22 @@ class FILE_DESC {
         memcpy(result+sizeof(words), path, sizeof(path));
         memcpy(result+sizeof(words)+sizeof(path), &keywords_len, sizeof(int));
         memcpy(result+sizeof(words)+sizeof(path)+sizeof(int), dec_flag, sizeof(dec_flag));
+    }
+};
+
+class file {
+    public:
+    uint8_t data[FILE_DESC_LEN];
+    file(uint8_t *serialized) {
+        memcpy(data, serialized, FILE_DESC_LEN);
+    }
+    void serialize (uint8_t *d) const{
+        memcpy(d, data, FILE_DESC_LEN);
+    }
+    bool operator<(const file& other) const {
+    // 实现比较逻辑
+    // 返回值为 true 表示 this 对象小于 other 对象，否则返回 false
+        return std::memcmp(this->data, other.data, FILE_DESC_LEN) < 0;
     }
 };
 
@@ -154,7 +169,7 @@ class QUERY_ITEM {
 class XSET_ITEM {
     public:
     fp_t xwd;
-    uint8_t ywd[FILE_DESC_LEN];
+    uint8_t ywd[FILE_DESC_LEN + 4];
     XSET_ITEM() {
         memset(xwd, 0, sizeof(xwd));
         memset(ywd, 0, sizeof(ywd));

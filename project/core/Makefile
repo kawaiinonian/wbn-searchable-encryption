@@ -34,8 +34,8 @@ clean :
 
 
 $(CLIENT) : $(CSRCS)
-	$(CXX) $(CSRCS) $(CXXFLAGS) -o $(CLIENT)
+	$(CXX) $(CSRCS) $(CXXFLAGS) -o $(CLIENT) $(RLCFLAGS)
 
 $(SERVER) : $(SSRCS)
-	$(CXX) $(SSRCS) $(CXXFLAGS) -o $(SERVER)
+	$(CXX) $(SSRCS) $(CXXFLAGS) -o $(SERVER) $(RLCFLAGS)
 

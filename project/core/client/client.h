@@ -55,3 +55,13 @@ void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST 
 void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY_DICT Doc_Key,
     USER_AUTH_DICT User_Auth, QUERY_LIST &query_list);
 
+extern "C" {
+    void update_interface(SEARCH_KEY skey, fd *fd_input[], int input_len, uint8_t *ret);
+    void online_auth_interface(SEARCH_KEY skey, USER_KEY ukey, fd* fd_input[], int input_len,
+        dockey** key2usr, uint8_t* uset2server);
+    void offline_auth_interface(USER_KEY aukey, USER_KEY bukey, uint8_t ub[], fd* fd_input[],
+        int input_len, userauth* usrautha[], int usrauthlen, dockey* dk[], uint8_t _f_aid[], uint8_t _n_aid[],
+        userauth **usrauthb, dockey **dk2usr, uint8_t* aset2server);
+    void search_interface(uint8_t* word, USER_KEY ukey, dockey* dk[], 
+        int len, userauth* ua[], uint8_t *q);
+}

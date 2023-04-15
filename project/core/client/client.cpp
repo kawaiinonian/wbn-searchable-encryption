@@ -18,13 +18,20 @@ void updateData_generate(SEARCH_KEY skey, FILE_DESC_LIST DOC,
         DOC[i].serialize(d);
         fp_t Kd, Kd_inv;
         F(skey.K1, d, Kd);
-        F(skey.K1, d, Kd_inv);
+        F(skey.K2, d, Kd_inv);
+        // printf("kd, kdinv: %s, %s\n", Kd, Kd_inv);
         uint8_t Kd_enc[LAMBDA];
         G(skey.K3, d, Kd_enc);
+        // printf("kdenc: %s\n", Kd_enc);
         for (j = 0; j < DOC[i].keywords_len; j++) {
             XSET_ITEM tmp_item;
             get_xwd(Kd, Kd_inv, d, DOC[i].words[j], tmp_item.xwd);
-            get_ywd(Kd_enc, d, tmp_item.ywd);
+            // printf("xwd:%s\n", tmp_item.xwd);
+            int error = get_ywd(Kd_enc, d, tmp_item.ywd);
+            // if (error == RLC_OK)
+            //     Xset_to_server.push_back(tmp_item);
+            // else    
+            //     printf("AES Failed\n");
             Xset_to_server.push_back(tmp_item);
         }
     }
@@ -36,14 +43,20 @@ void update_interface(SEARCH_KEY skey, fd *fd_input[], int input_len, uint8_t *r
     XSET_LIST xset;
     for (int i = 0; i < input_len; i++) {
         doc.push_back(FILE_DESC(fd_input[i]));
+        uint8_t d[FILE_DESC_LEN];
+        doc[i].serialize(d);
+        // printf("%s\n", d);
     }
+    // printf("%s\n%s\n%s\n%d\n", skey.K1, skey.K2, skey.K3, input_len);
+
     updateData_generate(skey, doc, xset);
     XSET_ITEM *item_ptr = xset.data();
     for (int i = 0; i < xset.size(); i++) {
-        fp_write_bin(ret+2*i*sizeof(fp_t), LAMBDA, item_ptr[i].xwd);
-        // fp_write_bin(ret+(2*i+1)*sizeof(fp_t), LAMBDA, item_ptr[i].ywd);
-        // memcpy(ret+2*i*sizeof(fp_t), item_ptr[i].xwd, sizeof(fp_t));
-        memcpy(ret+(2*i+1)*sizeof(fp_t), item_ptr[i].ywd, sizeof(fp_t));
+        fp_write_bin(ret+2*i*LAMBDA, LAMBDA, item_ptr[i].xwd);
+        // printf("ret xwd:%s\n", item_ptr[i].xwd);
+        // fp_write_bin(ret+(2*i+1)*LAMBDA, LAMBDA, item_ptr[i].ywd);
+        // memcpy(ret+2*i*LAMBDA, item_ptr[i].xwd, LAMBDA);
+        memcpy(ret+(2*i+1)*LAMBDA, item_ptr[i].ywd, LAMBDA);
     }
 }
 
@@ -67,8 +80,9 @@ void online_auth(SEARCH_KEY skey, USER_KEY ukey, FILE_DESC_LIST DOC,
         F(ukey.KU, d, tmp_kud);
         fp_inv_binar(tmp_kud_inv, tmp_kud);
         fp_mul_comba(tmp_uset_item.ud, tmp_kdd, tmp_kud_inv);
-        key_to_user.insert(std::make_pair(d, tmp_doc_item));
+        key_to_user.insert(std::make_pair(file(d), tmp_doc_item));
         uset_to_server.push_back(tmp_uset_item);
+        delete[] d;
     }
 
     return;
@@ -86,12 +100,13 @@ void online_auth_interface(SEARCH_KEY skey, USER_KEY ukey, fd* fd_input[], int i
     for (int i = 0; i < input_len; i++) {
         uint8_t* d = new uint8_t[FILE_DESC_LEN];
         doc[i].serialize(d);
+        tmp_key.find(file(d));
         memcpy(key2usr[i]->d, d, FILE_DESC_LEN);
-        memcpy(key2usr[i]->kd_enc, tmp_key.find(d)->second.Kd_enc, LAMBDA);
-        fp_write_bin(key2usr[i]->kd, LAMBDA, tmp_key.find(d)->second.Kd);
+        memcpy(key2usr[i]->kd_enc, tmp_key.find(file(d))->second.Kd_enc, LAMBDA);
+        fp_write_bin(key2usr[i]->kd, LAMBDA, tmp_key.find(file(d))->second.Kd);
         fp_write_bin(uset2server+2*i*LAMBDA, LAMBDA, tmp_uset[i].ud);
         fp_write_bin(uset2server+(2*i+1)*LAMBDA, LAMBDA, tmp_uset[i].uid);
-        delete d;
+        delete[] d;
     }
 }
 
@@ -104,14 +119,14 @@ void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST 
     fp_t tmp_alpha;
     F(A_ukey.KU, ub, tmp_alpha);
     fp_inv_binar(tmp_Aset_to_server.trapgate, tmp_alpha);
-    memcpy(tmp_Aset_to_server.f_aid, f_aid, sizeof(f_aid));
+    memcpy(tmp_Aset_to_server.f_aid, f_aid, LAMBDA);
     for (int i = 0; i < DOC.size(); i++) {
         uint8_t *d = new uint8_t[FILE_DESC_LEN];
         memset(d, 0, sizeof(d));
         USER_AUTH_ITEM tmp_user_auth;
         DOC[i].serialize(d);
         fp_t tmp_tok;
-        if (User_AuthA.find(d) == User_AuthA.end()) {
+        if (User_AuthA.find(file(d)) == User_AuthA.end()) {
             F(A_ukey.KUT, d, tmp_user_auth.uid);
             fp_t tmp_kuad, tmp_kuau, g, tmp;
             F(A_ukey.KU, d, tmp_kuad);
@@ -122,18 +137,19 @@ void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t* ub, FILE_DESC_LIST 
         } else {
             fp_t tmp_kuau;
             F(A_ukey.KU, ub, LAMBDA, tmp_kuau);
-            fp_mul_comba(tmp_user_auth.offtok, User_AuthA.find(d)->second.offtok, tmp_kuau);
-            memcpy(tmp_user_auth.uid, User_AuthA.find(d)->second.uid, sizeof(fp_t));
+            fp_mul_comba(tmp_user_auth.offtok, User_AuthA.find(file(d))->second.offtok, tmp_kuau);
+            memcpy(tmp_user_auth.uid, User_AuthA.find(file(d))->second.uid, LAMBDA);
         }
         F(A_ukey.KUT, ub, LAMBDA, n_aid);
-        auth_to_userB.insert(std::make_pair(d, tmp_user_auth));
-        key_to_userB.insert(std::make_pair(d, Doc_KeyA.find(d)->second));
+        auth_to_userB.insert(std::make_pair(file(d), tmp_user_auth));
+        key_to_userB.insert(std::make_pair(file(d), Doc_KeyA.find(file(d))->second));
+        delete[] d;
     }
     return;
 }
 
 void offline_auth_interface(USER_KEY aukey, USER_KEY bukey, uint8_t ub[], fd* fd_input[],
-    int input_len, userauth* usrautha[], dockey* dk[], uint8_t _f_aid[], uint8_t _n_aid[],
+    int input_len, userauth* usrautha[], int usrauthlen, dockey* dk[], uint8_t _f_aid[], uint8_t _n_aid[],
     userauth **usrauthb, dockey **dk2usr, uint8_t* aset2server) {
 
     FILE_DESC_LIST doc;
@@ -142,22 +158,25 @@ void offline_auth_interface(USER_KEY aukey, USER_KEY bukey, uint8_t ub[], fd* fd
     ASET_ITEM tmp_aset;
     for (int i = 0; i < input_len; i++) {
         doc.push_back(FILE_DESC(fd_input[i]));
-        user_auth_a.insert(std::make_pair(usrautha[i]->d, USER_AUTH_ITEM(usrautha[i]->uid, usrautha[i]->offtok)));
-        doc_keya.insert(std::make_pair(dk[i]->d, DOCKEY_ITEM(dk[i]->kd_enc, dk[i]->kd)));
+        doc_keya.insert(std::make_pair(file(dk[i]->d), DOCKEY_ITEM(dk[i]->kd_enc, dk[i]->kd)));
+    }
+    for (int i = 0; i < usrauthlen; i++) {
+        user_auth_a.insert(std::make_pair(file(usrautha[i]->d), USER_AUTH_ITEM(usrautha[i]->uid, usrautha[i]->offtok)));
     }
     fp_t f_aid, n_aid;
     fp_read_bin(f_aid, _f_aid, LAMBDA);
     offline_auth(aukey, bukey, ub, doc, user_auth_a, doc_keya, f_aid, n_aid, auth2userb, key2userb, tmp_aset);
-    fp_write_bin(_f_aid, LAMBDA, f_aid);
+    fp_write_bin(_n_aid, LAMBDA, n_aid);
     for (int i = 0; i < input_len; i++) {
         uint8_t *d = new uint8_t[FILE_DESC_LEN];
+        doc[i].serialize(d);
         memcpy(usrauthb[i]->d, d, FILE_DESC_LEN);
-        fp_write_bin(usrauthb[i]->uid, LAMBDA, auth2userb.find(d)->second.uid);
-        fp_write_bin(usrauthb[i]->offtok, LAMBDA, auth2userb.find(d)->second.offtok);
+        fp_write_bin(usrauthb[i]->uid, LAMBDA, auth2userb.find(file(d))->second.uid);
+        fp_write_bin(usrauthb[i]->offtok, LAMBDA, auth2userb.find(file(d))->second.offtok);
         memcpy(dk2usr[i]->d, d, FILE_DESC_LEN);
-        memcpy(dk2usr[i]->kd_enc, key2userb.find(d)->second.Kd_enc, LAMBDA);
-        fp_write_bin(dk2usr[i]->kd, LAMBDA, key2userb.find(d)->second.Kd);
-        delete d;
+        memcpy(dk2usr[i]->kd_enc, key2userb.find(file(d))->second.Kd_enc, LAMBDA);
+        fp_write_bin(dk2usr[i]->kd, LAMBDA, key2userb.find(file(d))->second.Kd);
+        delete[] d;
     }
     fp_write_bin(aset2server, LAMBDA, tmp_aset.aid);
     fp_write_bin(aset2server + LAMBDA, LAMBDA, tmp_aset.f_aid);
@@ -174,12 +193,15 @@ void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY_DICT Doc_Key,
         QUERY_ITEM tmp_q;
         if (User_Auth.find(iter->first) == User_Auth.end()) {
             fp_t g, tmp_kdw, tmp_kud, tmp;
-            F(ukey.KUT, iter->first, tmp_q.uid);
+            uint8_t *d = new uint8_t[FILE_DESC_LEN];
+            iter->first.serialize(d);
+            F(ukey.KUT, d, tmp_q.uid);
             fp_read_bin(g, g_init, LAMBDA);
             F(iter->second.Kd, word, WORD_LEN, tmp_kdw);
-            F(ukey.KU, iter->first, tmp_kud);
+            F(ukey.KU, d, tmp_kud);
             fp_mul_comba(tmp, tmp_kdw, tmp_kud);
             fp_mul_comba(tmp_q.stk_d, tmp, g);
+            delete[] d;
         } else {
             memcpy(tmp_q.uid, User_Auth.find(iter->first)->second.uid, LAMBDA);
             fp_t tmp_kdw;
@@ -199,8 +221,8 @@ void search_interface(uint8_t* word, USER_KEY ukey, dockey* dk[],
     USER_AUTH_DICT usr_au;
     QUERY_LIST _q;
     for (int i = 0; i < len; i++) {
-        doc.insert(std::make_pair(dk[i]->d, DOCKEY_ITEM(dk[i]->kd_enc, dk[i]->kd)));
-        usr_au.insert(std::make_pair(ua[i]->d, USER_AUTH_ITEM(ua[i]->uid, ua[i]->offtok)));
+        doc.insert(std::make_pair(file(dk[i]->d), DOCKEY_ITEM(dk[i]->kd_enc, dk[i]->kd)));
+        usr_au.insert(std::make_pair(file(ua[i]->d), USER_AUTH_ITEM(ua[i]->uid, ua[i]->offtok)));
 
     }
     search_generate(word, ukey, doc, usr_au, _q);

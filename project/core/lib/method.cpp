@@ -7,19 +7,19 @@ void setting_init() {
 
 void F(uint8_t *key, uint8_t *msg, fp_t result) {
     uint8_t tmp[LAMBDA] = {0};
-    G(tmp, msg, key);
+    md_hmac(tmp, msg, FILE_DESC_LEN, key, LAMBDA);
     fp_read_bin(result, tmp, LAMBDA);
 }
 
 void F(const uint8_t* key, uint8_t* msg, int msg_len, fp_t result) {
-    uint8_t tmp[LAMBDA];
+    uint8_t tmp[LAMBDA] = {0};
     md_hmac(tmp, msg, msg_len, key, LAMBDA);
     fp_read_bin(result, tmp, LAMBDA);
 }
 
 void F(const fp_t key, uint8_t* msg, int msg_len, fp_t result) {
-    uint8_t tmp[LAMBDA];
-    uint8_t k_in_b[LAMBDA];
+    uint8_t tmp[LAMBDA] = {0};
+    uint8_t k_in_b[LAMBDA] = {0};
     fp_write_bin(k_in_b, LAMBDA, key);
     md_hmac(tmp, msg, msg_len, k_in_b, LAMBDA);
     fp_read_bin(result, tmp, LAMBDA);
@@ -38,7 +38,8 @@ void get_xwd(const fp_t kd, const fp_t kd_inv, uint8_t *d, uint8_t *w, fp_t resu
     fp_mul_comba(result, g, c);
 }
 
-void get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
-    size_t size = FILE_DESC_LEN;
-    bc_aes_cbc_enc(result, &size, d, FILE_DESC_LEN, k, LAMBDA, IV);
+int get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
+    size_t size = FILE_DESC_LEN + 4;
+    int ret = bc_aes_cbc_enc(result, &size, d, FILE_DESC_LEN, k, LAMBDA, IV);
+    return ret;
 }

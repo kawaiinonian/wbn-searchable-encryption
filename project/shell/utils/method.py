@@ -1,8 +1,8 @@
 from ctypes import *
 from typing import List
-from datatype import *
+from .datatype import *
 
-def get_fd(words: List[str], path: str):
+def get_fd(words: List[bytes], path: bytes):
     if len(words) > MAX_WORD:
         raise IndexError
     _words = []
@@ -27,6 +27,13 @@ def get_d_from_bytes(data: bytes):
     if len(data) > FILE_DESC_LEN:
         raise IndexError
     ret = type_d()
+    memmove(ret, data, len(data))
+    return ret
+
+def get_word_from_bytes(data: bytes):
+    if len(data) > WORD_LEN:
+        raise IndexError
+    ret = type_word()
     memmove(ret, data, len(data))
     return ret
 

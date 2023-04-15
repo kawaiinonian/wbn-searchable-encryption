@@ -5,7 +5,7 @@
 #define WORD_LEN 32
 #define PATH_LEN 64
 #define FILE_DESC_LEN 1100
-#define DEBUG
+// #define DEBUG
 
 extern const uint8_t *g_init;
 extern const uint8_t IV[16];
