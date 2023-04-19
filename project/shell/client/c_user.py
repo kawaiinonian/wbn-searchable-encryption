@@ -3,8 +3,6 @@ from typing import List
 
 from ..utils.datatype import *
 class c_user:
-    MAX_UPDATE = 512
-    MAX_AUTH = 512
     def __init__(self, sopath:str) -> None:
         self.lib = c.cdll.LoadLibrary(sopath)
         self.lib.setting_init()

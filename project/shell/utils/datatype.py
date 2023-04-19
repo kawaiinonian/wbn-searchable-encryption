@@ -48,3 +48,9 @@ class USER_AUTH(Structure):
         ("uid", type_key),
         ("offtok", type_key),        
     ]
+
+
+class Aset_item:
+    def __init__(self, alpha: bytes) -> None:
+        self.alpha = alpha
+        self.dlist = []
