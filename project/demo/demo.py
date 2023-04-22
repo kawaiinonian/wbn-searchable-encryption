@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/kawaiinonian/project/project")
+sys.path.append("/home/secreu/wbn-searchable-encryption/project")
 from shell.client.c_user import c_user
 from shell.server.c_server import c_server
 from shell.utils.datatype import *
@@ -28,10 +28,10 @@ def load_data_as_bytes(file_name):
 
     return data_as_bytes
 
-path = "/home/kawaiinonian/project/project/demo/demo.json"
+path = "/home/secreu/wbn-searchable-encryption/project/demo/demo.json"
 word = b"common_word"
-libclient = "/home/kawaiinonian/project/project/core/libclient.so"
-libserver = "/home/kawaiinonian/project/project/core/libserver.so"
+libclient = "/home/secreu/wbn-searchable-encryption/project/core/libclient.so"
+libserver = "/home/secreu/wbn-searchable-encryption/project/core/libserver.so"
 usr1 = b"helloworld\x00\x00\x00\x00\x00\x00"
 xset = {}
 uset = {}
