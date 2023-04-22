@@ -9,7 +9,7 @@ class c_server:
         self.lib = c.cdll.LoadLibrary(sopath)
         self.lib.setting_init()
 
-    def Aset_update(self, Aset: Dict[bytes, Aset_item], aid: bytes, alpha: bytes, aidA: Union[bytes, None]):
+    def Aset_update(self, Aset: Dict[bytes, Aset_item], aid: bytes, alpha: bytes, aidA):
         if aid not in Aset.keys():
             Aset[aid] = Aset_item(alpha)
         if aidA is not None:
@@ -24,10 +24,10 @@ class c_server:
         self.lib.get_multi(bkey1, bkey2, buf)
         return bytes(buf)
 
-    def search(self, token: List[Tuple(bytes, bytes)], aid: Union[bytes, None], Uset: Dict[bytes, bytes], \
+    def search(self, token: List[Tuple[bytes, bytes]], aid, Uset: Dict[bytes, bytes], \
         Aset: Dict[bytes, Aset_item], Xset: Dict[bytes, bytes]):
 
-        ret = List[bytes]
+        ret = []
         for t in token:
             x = self.multi(t[1], Uset[t[0]])
             if aid is not None:

@@ -7,6 +7,7 @@ WORD_LEN = 32
 MAX_WORD = 32
 PATH_LEN = 64
 FILE_DESC_LEN = 1100
+FILE_DESC_LEN_ENC = 1104
 
 type_key = c_ubyte * LAMBDA
 type_word = c_ubyte * WORD_LEN

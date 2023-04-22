@@ -1,6 +1,7 @@
 from ctypes import *
 from typing import List
 from .datatype import *
+import secrets
 
 def get_fd(words: List[bytes], path: bytes):
     if len(words) > MAX_WORD:
@@ -49,3 +50,6 @@ def get_word_from_bytes(data: bytes):
 
 def get_query_from_bytes(data: bytes):
     pass
+
+def get_random_key(length: int):
+    return secrets.token_bytes(length)

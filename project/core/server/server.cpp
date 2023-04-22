@@ -34,13 +34,30 @@ typedef std::vector<ASET_ITEM> ASET_LIST;
 
 //     return;
 // }
+#ifdef DEBUG
+#include <fstream>
 
+const char* filename = "/home/kawaiinonian/project/debug";
+
+void debug(const uint8_t* d, int len) {
+  std::ofstream outfile;
+  outfile.open(filename, std::ios_base::app | std::ios_base::binary);
+  for (int i = 0; i < len; ++i) {
+    outfile << static_cast<int>(d[i]);
+  }
+  outfile << '\n';
+  outfile.close();
+}
+#endif
 void get_multi(uint8_t *key1, uint8_t *key2, uint8_t *ret) {
     fp_t _key1, _key2, _ret;
     fp_read_bin(_key1, key1, LAMBDA);
     fp_read_bin(_key2, key2, LAMBDA);
     fp_mul_comba(_ret, _key1, _key2);
     fp_write_bin(ret, LAMBDA, _ret);
+    #ifdef DEBUG
+    debug(ret, LAMBDA);
+    #endif
 }
 
 // void search(QUERY_LIST query, fp_t aid, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,

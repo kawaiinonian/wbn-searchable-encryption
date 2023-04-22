@@ -169,7 +169,7 @@ class QUERY_ITEM {
 class XSET_ITEM {
     public:
     fp_t xwd;
-    uint8_t ywd[FILE_DESC_LEN + 4];
+    uint8_t ywd[FILE_DESC_LEN_ENC];
     XSET_ITEM() {
         memset(xwd, 0, sizeof(xwd));
         memset(ywd, 0, sizeof(ywd));

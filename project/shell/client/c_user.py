@@ -11,11 +11,14 @@ class c_user:
         doc_ptr = [pointer(i) for i in DOC]
         doc_input_type = POINTER(FILE_DESC) * len(DOC)
         doc_input = doc_input_type(*doc_ptr)
-        buffer_type = c_ubyte * len(DOC) * 2 * LAMBDA
+        word_num = 0
+        for d in DOC:
+            word_num += d.keywords_len
+        buffer_type = c_ubyte * word_num * (LAMBDA + FILE_DESC_LEN_ENC)
         _ret = buffer_type()
         self.lib.update_interface(skey, doc_input, len(DOC), _ret)
         ret = bytes(_ret)
-        return ret
+        return ret, word_num
 
     def online_auth(self, skey: SEARCH_KEY, ukey: USER_KEY, DOC: List[FILE_DESC]):
         doc_ptr = [pointer(i) for i in DOC]
@@ -76,5 +79,5 @@ class c_user:
         user_auth = user_auth_type(*user_auth_ptr)
         buf_type = c_ubyte * 2 * LAMBDA * len(DOCKEY_LIST)
         buf = buf_type()
-        self.lib.search_interface(word, ukey, dockey, len(DOCKEY_LIST), user_auth, buf)
+        self.lib.search_interface(word, ukey, dockey, len(DOCKEY_LIST), user_auth, len(USERAUTH_LIST), buf)
         return bytes(buf)

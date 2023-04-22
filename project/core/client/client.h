@@ -63,5 +63,5 @@ extern "C" {
         int input_len, userauth* usrautha[], int usrauthlen, dockey* dk[], uint8_t _f_aid[], uint8_t _n_aid[],
         userauth **usrauthb, dockey **dk2usr, uint8_t* aset2server);
     void search_interface(uint8_t* word, USER_KEY ukey, dockey* dk[], 
-        int len, userauth* ua[], uint8_t *q);
+        int len_dk, userauth* ua[], int len_ua, uint8_t *q);
 }
