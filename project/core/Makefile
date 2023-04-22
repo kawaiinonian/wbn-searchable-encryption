@@ -30,7 +30,7 @@ server : $(SERVER)
 all : clean everything
 
 clean :
-	rm -f $(OBJS) $(CLIENT) $(SERVER)
+	rm -f $(CLIENT) $(SERVER)
 
 
 $(CLIENT) : $(CSRCS)
