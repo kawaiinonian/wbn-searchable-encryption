@@ -2,10 +2,10 @@
 #include "../include/include.h"
 #endif
 
-void F(uint8_t *key, uint8_t* msg, fp_t result);
-void F(const fp_t k, uint8_t* msg, int msg_len, fp_t result);
-void F(const uint8_t* key, uint8_t* msg, int msg_len, fp_t result);
-void F(const fp_t key, uint8_t* msg, int msg_len, fp_t result);
+// void F(uint8_t *key, uint8_t* msg, fp_t result);
+// void F(const fp_t k, uint8_t* msg, int msg_len, fp_t result);
+// void F(const uint8_t* key, uint8_t* msg, int msg_len, fp_t result);
+// void F(const fp_t key, uint8_t* msg, int msg_len, fp_t result);
 void G(uint8_t *key, uint8_t* msg, uint8_t *result);
 
 

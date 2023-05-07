@@ -24,14 +24,22 @@ class c_server:
         self.lib.get_multi(bkey1, bkey2, buf)
         return bytes(buf)
 
+    def power(self, key1: bytes, key2:bytes)->bytes:
+        bkey1 = get_key_from_bytes(key1)
+        bkey2 = get_key_from_bytes(key2)
+        buf_type = c_ubyte * LAMBDA
+        buf = buf_type()
+        self.lib.get_exp(bkey1, bkey2, buf)
+        return bytes(buf)
+        
     def search(self, token: List[Tuple[bytes, bytes]], aid, Uset: Dict[bytes, bytes], \
         Aset: Dict[bytes, Aset_item], Xset: Dict[bytes, bytes]):
 
         ret = []
         for t in token:
-            x = self.multi(t[1], Uset[t[0]])
+            x = self.power(t[1], Uset[t[0]])
             if aid is not None:
-                x = self.multi(x, Aset[aid])
+                x = self.power(x, Aset[aid])
             if x in Xset.keys():
                 ret.append(Xset[x])
 

@@ -22,85 +22,94 @@ class ASET_ITEM;
 class USET_ITEM;
 class file;
 
-typedef std::map<file, USER_AUTH_ITEM> USER_AUTH_DICT;
-typedef std::vector<QUERY_ITEM> QUERY_LIST;
-typedef std::map<file, DOCKEY_ITEM> DOCKEY_DICT;
-typedef std::vector<USET_ITEM> USET_LIST;
-typedef std::vector<XSET_ITEM> XSET_LIST;
-typedef std::vector<FILE_DESC> FILE_DESC_LIST;
-typedef std::vector<ASET_ITEM> ASET_LIST;
+// typedef std::map<file, USER_AUTH_ITEM> USER_AUTH_DICT;
+// typedef std::vector<QUERY_ITEM> QUERY_LIST;
+// typedef std::map<file, DOCKEY_ITEM> DOCKEY_DICT;
+// typedef std::vector<USET_ITEM> USET_LIST;
+// typedef std::vector<XSET_ITEM> XSET_LIST;
+// typedef std::vector<FILE_DESC> FILE_DESC_LIST;
+// typedef std::vector<ASET_ITEM> ASET_LIST;
 // to be changed: for coding with no error
 // typedef std::vector<std::string> keyword;
 // typedef std::string keyword;
 
-typedef struct {
-    uint8_t words[MAX_WORD][WORD_LEN];
-    int keywords_len;
-    char path[PATH_LEN];
-}fd;
+// typedef struct {
+//     uint8_t words[MAX_WORD][WORD_LEN];
+//     int keywords_len;
+//     char path[PATH_LEN];
+// }fd;
 
-typedef struct {
-    uint8_t d[FILE_DESC_LEN];
-    uint8_t kd_enc[LAMBDA], kd[LAMBDA];
-}dockey;
+// typedef struct {
+//     uint8_t d[FILE_DESC_LEN];
+//     uint8_t kd_enc[LAMBDA], kd[LAMBDA];
+// }dockey;
 
-typedef struct {
-    uint8_t ud[LAMBDA], uid[LAMBDA];
-}uset;
+// typedef struct {
+//     uint8_t ud[LAMBDA], uid[LAMBDA];
+// }uset;
 
-typedef struct {
-    uint8_t d[FILE_DESC_LEN];
-    uint8_t uid[LAMBDA], offtok[LAMBDA];
-}userauth;
+// typedef struct {
+//     uint8_t d[FILE_DESC_LEN];
+//     uint8_t uid[LAMBDA], offtok[LAMBDA];
+// }userauth;
 
 
-typedef struct {
-    uint8_t uid[LAMBDA], stk_d[LAMBDA];
-}query;
+// typedef struct {
+//     uint8_t uid[LAMBDA], stk_d[LAMBDA];
+// }query;
 
-class FILE_DESC {
-    public:
-    uint8_t words[MAX_WORD][WORD_LEN];
-    int keywords_len;
-    char path[PATH_LEN];
-    uint8_t dec_flag[8] = "CORRECT";
-    FILE_DESC(void) {
-        memset(words, 0, sizeof(words));
-        memset(path, 0, sizeof(path));
-        keywords_len = 0;
-    } 
-    FILE_DESC(fd *input) {
-        memset(words, 0, sizeof(words));
-        memset(path, 0, sizeof(path));
-        for (int i = 0; i < input->keywords_len; i++) {
-            memcpy(words[i], input->words[i], WORD_LEN);
-        }
-        keywords_len = input->keywords_len;
-        memcpy(path, input->path, PATH_LEN);
-    }
-    void serialize(uint8_t *result) {
-        memcpy(result, words, sizeof(words));
-        memcpy(result+sizeof(words), path, sizeof(path));
-        memcpy(result+sizeof(words)+sizeof(path), &keywords_len, sizeof(int));
-        memcpy(result+sizeof(words)+sizeof(path)+sizeof(int), dec_flag, sizeof(dec_flag));
-    }
-};
+// class FILE_DESC {
+//     public:
+//     uint8_t words[MAX_WORD][WORD_LEN];
+//     int keywords_len;
+//     char path[PATH_LEN];
+//     uint8_t dec_flag[8] = "CORRECT";
+//     FILE_DESC(void) {
+//         memset(words, 0, sizeof(words));
+//         memset(path, 0, sizeof(path));
+//         keywords_len = 0;
+//     } 
+//     FILE_DESC(fd *input) {
+//         memset(words, 0, sizeof(words));
+//         memset(path, 0, sizeof(path));
+//         for (int i = 0; i < input->keywords_len; i++) {
+//             memcpy(words[i], input->words[i], WORD_LEN);
+//         }
+//         keywords_len = input->keywords_len;
+//         memcpy(path, input->path, PATH_LEN);
+//     }
+//     void serialize(uint8_t *result) {
+//         memcpy(result, words, sizeof(words));
+//         memcpy(result+sizeof(words), path, sizeof(path));
+//         memcpy(result+sizeof(words)+sizeof(path), &keywords_len, sizeof(int));
+//         memcpy(result+sizeof(words)+sizeof(path)+sizeof(int), dec_flag, sizeof(dec_flag));
+//     }
+// };
+
 
 class file {
     public:
-    uint8_t data[FILE_DESC_LEN];
-    file(uint8_t *serialized) {
-        memcpy(data, serialized, FILE_DESC_LEN);
-    }
-    void serialize (uint8_t *d) const{
-        memcpy(d, data, FILE_DESC_LEN);
-    }
-    bool operator<(const file& other) const {
-    // 实现比较逻辑
-    // 返回值为 true 表示 this 对象小于 other 对象，否则返回 false
-        return std::memcmp(this->data, other.data, FILE_DESC_LEN) < 0;
-    }
+    uint8_t words[MAX_WORD][WORD_LEN];
+    int wordlen;
+    uint8_t d[PATH_LEN];
 };
+
+
+// class file {
+//     public:
+//     uint8_t data[FILE_DESC_LEN];
+//     file(uint8_t *serialized) {
+//         memcpy(data, serialized, FILE_DESC_LEN);
+//     }
+//     void serialize (uint8_t *d) const{
+//         memcpy(d, data, FILE_DESC_LEN);
+//     }
+//     bool operator<(const file& other) const {
+//     // 实现比较逻辑
+//     // 返回值为 true 表示 this 对象小于 other 对象，否则返回 false
+//         return std::memcmp(this->data, other.data, FILE_DESC_LEN) < 0;
+//     }
+// };
 
 class SEARCH_KEY {
     public:
@@ -130,29 +139,32 @@ class USER_KEY {
 
 class DOCKEY_ITEM {
     public:
-    uint8_t Kd_enc[LAMBDA];
-    fp_t Kd;
-    DOCKEY_ITEM() {
-        memset(Kd_enc, 0, sizeof(Kd_enc));
-        memset(Kd, 0, sizeof(Kd));
-    }
-    DOCKEY_ITEM(uint8_t* _Kd_enc, uint8_t* _Kd) {
-        memcpy(Kd_enc, _Kd_enc, LAMBDA);
-        fp_read_bin(Kd, _Kd, LAMBDA);
+    uint8_t Kd_enc[LAMBDA], Kd[LAMBDA];
+    DOCKEY_ITEM(uint8_t Kd_enc[], uint8_t Kd[]) {
+        memcpy(this->Kd, Kd, LAMBDA);
+        memcpy(this->Kd_enc, Kd_enc, LAMBDA);
     }
 };
 
-class USER_AUTH_ITEM {
+class DOCKEY {
     public:
-    fp_t uid, offtok;
-    //std::vector<std::byte[LAMBDA]> AList;
-    USER_AUTH_ITEM() {
-        memset(uid, 0, sizeof(uid));
-        memset(offtok, 0, sizeof(offtok));
+    uint8_t d[PATH_LEN], Kd_enc[LAMBDA], Kd[LAMBDA];
+    DOCKEY(uint8_t d[], DOCKEY_ITEM item) {
+        memcpy(this->d, d, PATH_LEN);
+        memcpy(this->Kd, item.Kd, LAMBDA);
+        memcpy(this->Kd_enc, item.Kd_enc, LAMBDA);
     }
-    USER_AUTH_ITEM(uint8_t *_uid, uint8_t* _offtok) {
-        fp_read_bin(uid, _uid, LAMBDA);
-        fp_read_bin(offtok, _offtok, LAMBDA);
+};
+
+
+class USER_AUTH {
+    public:
+    uint8_t d[PATH_LEN], uid[LAMBDA], offtok[LAMBDA];
+    //std::vector<std::byte[LAMBDA]> AList;
+    USER_AUTH(uint8_t d[], fp_t uid, fp_t offtok) {
+        memcpy(this->d, d, PATH_LEN);
+        fp_write_bin(this->uid, LAMBDA, uid);
+        fp_write_bin(this->offtok, LAMBDA, offtok);
     }
 };
 
@@ -168,8 +180,7 @@ class QUERY_ITEM {
 
 class XSET_ITEM {
     public:
-    fp_t xwd;
-    uint8_t ywd[FILE_DESC_LEN_ENC];
+    uint8_t xwd[LAMBDA], ywd[PATH_LEN+16];
     XSET_ITEM() {
         memset(xwd, 0, sizeof(xwd));
         memset(ywd, 0, sizeof(ywd));
@@ -178,8 +189,7 @@ class XSET_ITEM {
 
 class ASET_ITEM {
     public:
-    fp_t aid, trapgate, f_aid;
-    std::vector<uint64_t *> c_aid;
+    uint8_t aid[LAMBDA], trapgate[LAMBDA], f_aid[LAMBDA];
     ASET_ITEM() {
         memset(aid, 0, sizeof(aid));
         memset(trapgate, 0, sizeof(trapgate));
@@ -189,9 +199,43 @@ class ASET_ITEM {
 
 class USET_ITEM {
     public:
-    fp_t uid, ud;
+    uint8_t uid[LAMBDA], ud[LAMBDA];
     USET_ITEM() {
         memset(uid, 0, sizeof(uid));
         memset(ud, 0, sizeof(ud));
+    }
+};
+
+class USER_AUTH_ITEM {
+    public:
+    // uint8_t uid[LAMBDA], offtok[LAMBDA];
+    fp_t uid, offtok;
+    USER_AUTH_ITEM(uint8_t uid[], uint8_t offtok[]) {
+        fp_read_bin(this->uid, uid, LAMBDA);
+        fp_read_bin(this->offtok, offtok, LAMBDA);
+    }
+};
+
+struct Uint8ArrayComparator {
+    bool operator()(const uint8_t* a, const uint8_t* b) const {
+        for (size_t i = 0; i < arraySize; ++i) {
+            if (a[i] < b[i]) {
+                return true;
+            }
+            if (a[i] > b[i]) {
+                return false;
+            }
+        }
+        return false;
+    }
+    static constexpr size_t arraySize = PATH_LEN;  // 根据实际需求调整数组大小
+};
+
+class TOKEN {
+    public:
+    uint8_t uid[LAMBDA], stk[LAMBDA];
+    TOKEN(fp_t uid, fp_t stk) {
+        fp_write_bin(this->uid, LAMBDA, uid);
+        fp_write_bin(this->stk, LAMBDA, stk);
     }
 };

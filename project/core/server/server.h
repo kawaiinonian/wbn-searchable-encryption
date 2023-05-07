@@ -26,4 +26,5 @@
 //     std::vector<uint8_t *> &query_response);
 extern "C" {
     void get_multi(uint8_t *key1, uint8_t *key2, uint8_t *ret);
+    void get_exp(uint8_t *key1, uint8_t *key2, uint8_t *ret);
 }

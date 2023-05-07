@@ -14,8 +14,18 @@ def get_fd(words: List[bytes], path: bytes):
     c_words = type_words(*_words)
     c_path = type_path()
     memmove(c_path, path, len(path))
-    fd = FILE_DESC(c_words, len(words), c_path)
+    fd = FILE_WITH_WORDS(c_words, len(words), c_path)
     return fd
+
+def get_doc(ds):
+    doc_set = []
+    for fd in ds:
+        d = type_d()
+        memmove(d, fd, len(fd))
+        doc_set.append(d)
+    type_doc = type_d * len(ds)
+    doc = type_doc(*doc_set)
+    return doc
 
 def get_key_from_bytes(data: bytes):
     if len(data) > LAMBDA:

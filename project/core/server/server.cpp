@@ -60,6 +60,15 @@ void get_multi(uint8_t *key1, uint8_t *key2, uint8_t *ret) {
     #endif
 }
 
+void get_exp(uint8_t *key1, uint8_t *key2, uint8_t *ret) {
+    fp_t base, result, index;
+    bn_t index_bn;
+    fp_read_bin(base, key1, LAMBDA);
+    fp_read_bin(index, key2, LAMBDA);
+    fp_prime_back(index_bn, index);
+    fp_exp_monty(result, base, index_bn);
+    fp_write_bin(ret, LAMBDA, result);
+}
 // void search(QUERY_LIST query, fp_t aid, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,
 //     std::vector<uint8_t *> &query_response) {
 //     fp_t x;

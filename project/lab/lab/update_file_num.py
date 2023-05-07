@@ -1,5 +1,6 @@
 import sys
-sys.path.append("/home/kawaiinonian/project/project/")
+import os
+sys.path.append(os.getcwd() + "/project")
 from shell.client.c_user import c_user
 from shell.utils.datatype import *
 from shell.utils.method import *
@@ -29,19 +30,20 @@ def load_data_as_bytes(file_name):
 
     return data_as_bytes
 
-path = "/home/kawaiinonian/project/project/lab/data/enron10w_washed.json"
-libclient = "/home/kawaiinonian/project/project/core/libclient.so"
-usr1 = b"helloworld\x00\x00\x00\x00\x00\x00"
-num = [500, 1000, 3000, 5000, 10000, 20000, 30000, 50000]
+path = os.getcwd() + "/project/lab/data/enron10w_washed.json"
+libclient = os.getcwd() + "/project/core/libclient.so"
+usr1 = b"helloworld".ljust(LAMBDA)
+num = [1000, 3000, 5000, 10000, 20000, 30000, 50000]
 sk = SEARCH_KEY(
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
 )
 document = load_data_as_bytes(path)
-docs = []
+files = []
 for k, v in document.items():
-    docs.append(get_fd(v, usr1+k))
+    files.append(get_fd(v, usr1+bytes(k).ljust(LAMBDA)))
+docs = [usr1+d.ljust(LAMBDA) for d in document.keys()]
 
 cusr = c_user(libclient)
 print("load client core success")
@@ -49,8 +51,8 @@ using_time = []
 
 for n in num:
     t1 = time.time()
-    doc = docs[:n]
-    _, _ = cusr.updateData_generate(sk, doc)
+    file = files[:n]
+    _, _ = cusr.updateData_generate(sk, file)
     t2 = time.time()
     using_time.append(t2-t1)
 

@@ -30,48 +30,74 @@ def load_data_as_bytes(file_name):
 
     return data_as_bytes
 
-def get_uk(num):
-    ret = []
-    for _ in range(num):
-        uk = USER_KEY(
-            get_key_from_bytes(get_random_key(LAMBDA)),
-            get_key_from_bytes(get_random_key(LAMBDA)),
-        )
-        ret.append(uk)
-
-    return ret
-
 path = os.getcwd() + "/project/lab/data/enron1w_washed.json"
 libclient = os.getcwd() + "/project/core/libclient.so"
 usr1 = b"helloworld".ljust(LAMBDA)
-num = [500, 1000, 3000, 5000, 10000, 20000, 50000, 100000]
+num = [1, 10, 100,]
 sk = SEARCH_KEY(
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
 )
+uk = USER_KEY(
+    get_key_from_bytes(get_random_key(LAMBDA)),
+    get_key_from_bytes(get_random_key(LAMBDA)),
+)
+ub = get_random_key(LAMBDA)
 document = load_data_as_bytes(path)
 files = []
 for k, v in document.items():
     files.append(get_fd(v, usr1+bytes(k).ljust(LAMBDA)))
 docs = [usr1+d.ljust(LAMBDA) for d in document.keys()]
 
+
 cusr = c_user(libclient)
 print("load client core success")
 using_time = []
+
 for n in num:
-    doc = docs[:10]
-    uks = get_uk(n)
+    doc = docs[:1000]
+    dockey_data, _ = cusr.online_auth(sk, uk, doc)
+    dockey = [dk for dk in dockey_data]
+    aid_ini = get_key_from_bytes(32*b'\x00')
+    uk2 = USER_KEY(
+        get_key_from_bytes(get_random_key(LAMBDA)),
+        get_key_from_bytes(get_random_key(LAMBDA)),
+    )
+    _, usr_auth_data, dockey_data = cusr.offline_auth(
+        uk, uk2, doc, ub, dockey, []
+    )
+    for i in range(n):
+        dockey = [dk for dk in dockey_data]
+        usr_auth = [ua for ua in usr_auth_data]
+        uk1 = uk2
+        uk2 = USER_KEY(
+            get_key_from_bytes(get_random_key(LAMBDA)),
+            get_key_from_bytes(get_random_key(LAMBDA)),
+        )
+        _, usr_auth_data, dockey_data = cusr.offline_auth(
+            uk1, uk2, doc, ub, dockey, usr_auth
+        )
+
+    dockey = [dk for dk in dockey_data]
+    usr_auth = [ua for ua in usr_auth_data]
+    uk1 = uk2
+    uk2 = USER_KEY(
+        get_key_from_bytes(get_random_key(LAMBDA)),
+        get_key_from_bytes(get_random_key(LAMBDA)),
+    )
     t1 = time.time()
-    for uk in uks:
-        _, _ = cusr.online_auth(sk, uk, doc)
+    _, usr_auth_data, dockey_data = cusr.offline_auth(
+        uk1, uk2, doc, ub, dockey, usr_auth
+    )
     t2 = time.time()
     using_time.append(t2-t1)
 
-x = np.array(num)
+    
+x = np.array(np.log10(num))
 y = np.array(using_time)
 plt.plot(x, y)
-plt.title("User count vs. Calculation time")
-plt.xlabel("User count")
+plt.title("Auth layers vs. Calculation time")
+plt.xlabel("Auth layers")
 plt.ylabel("Calculation time")
 plt.show()

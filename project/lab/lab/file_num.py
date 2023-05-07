@@ -1,5 +1,6 @@
 import sys
-sys.path.append("/home/kawaiinonian/project/project/")
+import os
+sys.path.append(os.getcwd() + "/project")
 from shell.client.c_user import c_user
 from shell.utils.datatype import *
 from shell.utils.method import *
@@ -29,10 +30,11 @@ def load_data_as_bytes(file_name):
 
     return data_as_bytes
 
-path = "/home/kawaiinonian/project/project/lab/data/enron10w_washed.json"
-libclient = "/home/kawaiinonian/project/project/core/libclient.so"
-usr1 = b"helloworld\x00\x00\x00\x00\x00\x00"
+path = os.getcwd() + "/project/lab/data/enron10w_washed.json"
+libclient = os.getcwd() + "/project/core/libclient.so"
+usr1 = b"helloworld".ljust(LAMBDA)
 num = [500, 1000, 3000, 5000, 10000, 20000, 30000, 50000]
+# num = [500, 1000, 3000]
 sk = SEARCH_KEY(
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
@@ -42,26 +44,52 @@ uk = USER_KEY(
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
 )
+uk1 = USER_KEY(
+    get_key_from_bytes(get_random_key(LAMBDA)),
+    get_key_from_bytes(get_random_key(LAMBDA)),
+)
+ub = get_random_key(LAMBDA)
 document = load_data_as_bytes(path)
-docs = []
+files = []
 for k, v in document.items():
-    docs.append(get_fd(v, usr1+k))
+    files.append(get_fd(v, usr1+k))
+doc = [usr1+d.ljust(LAMBDA) for d in document.keys()]
 
 cusr = c_user(libclient)
 print("load client core success")
 using_time = []
+using_time_off = []
 
 for n in num:
+    d = doc[:n]
+    dockey_data, _ = cusr.online_auth(sk, uk, d)
+    dockey = [k for k in dockey_data]
     t1 = time.time()
-    doc = docs[:n]
-    _, _ = cusr.online_auth(sk, uk, doc)
+    _, _, _ = cusr.offline_auth(uk, uk1, d,
+                ub, dockey, [])
+    t2 = time.time()
+    using_time_off.append(t2-t1)
+    t1 = time.time()
+    dockey_data, _ = cusr.online_auth(sk, uk, d)
     t2 = time.time()
     using_time.append(t2-t1)
 
+
 x = np.array(num)
 y = np.array(using_time)
-plt.plot(x, y)
+z = np.array(using_time_off)
+
+plt.plot(x, y, 'b-', label = 'online')
+plt.plot(x, z, 'o--', label = 'offline')
 plt.title("File count vs. Calculation time")
 plt.xlabel("File count")
 plt.ylabel("Calculation time")
 plt.show()
+
+# x = np.array(num)
+# y = np.array(using_time_off)
+# plt.plot(x, y)
+# plt.title("File count vs. Calculation time -- offline")
+# plt.xlabel("File count")
+# plt.ylabel("Calculation time -- offline")
+# plt.show()
