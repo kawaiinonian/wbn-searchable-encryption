@@ -1,6 +1,12 @@
 import socket
 import pickle
 
+import sys
+import os
+sys.path.append(os.getcwd() + "/project/shell/")
+
+
+
 def recv_all(client_socket):
     data = bytearray()
     while True:
@@ -23,10 +29,11 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(("127.0.0.1", 12345))
 
 while True:
-    username = 'secreu'
+    user_id = 'secreu'
+    server = 'wbn'
     function = input("请输入要发送的功能（功能1或功能2）：")
     data = input("请输入要发送的数据：")
-    message = {'username': username, 'function': function, 'data': data}
+    message = {'src': user_id, 'dst': server, 'function': function, 'data': data}
     serialized_data = pickle.dumps(message)
     send_all(client_socket, serialized_data)
 
