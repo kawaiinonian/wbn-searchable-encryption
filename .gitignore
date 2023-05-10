@@ -11,3 +11,4 @@ project/shell/client/__pycache__/
 project/shell/utils/__pycache__/
 project/shell/client/client/__pycache__/
 project/shell/client/mycloud/__pycache__/
+project/shell/client/mycloud/migrations/__pycache__/
