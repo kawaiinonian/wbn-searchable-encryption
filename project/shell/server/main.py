@@ -9,6 +9,7 @@ sys.path.append(os.getcwd() + "/project/shell/")
 from server.consts import *
 from server.c_server import *
 
+
 def save_dict(path, data):
     with open(path, 'wb') as f:
         pickle.dump(data, f)
@@ -40,16 +41,19 @@ def handle_client(client_socket):
     while True:
         try:
             data = recv_all(client_socket)
+            message = pickle.loads(data)
             if not data or message['dst'] != server:
                 break
-            message = pickle.loads(data)
             user_id = message['src']
 
             # Add
             if message['function'] == 'ADD':
                 tmp = message['data']
                 try:
-                    XSETS[user_id] = XSETS[user_id].items | tmp
+                    if user_id not in XSETS.keys():
+                        XSETS[user_id] = {}
+                    XSETS[user_id] |= tmp
+                    print(XSETS)
                     re = 'Success'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -59,7 +63,9 @@ def handle_client(client_socket):
             elif message['function'] == 'ONLINE':
                 tmp = message['data']
                 try:
-                    USETS[user_id] = USETS[user_id].items | tmp
+                    if user_id not in USETS.keys():
+                        USETS[user_id] = {}
+                    USETS[user_id] |= tmp
                     re = 'Success'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -69,7 +75,9 @@ def handle_client(client_socket):
             elif message['function'] == 'OFFLINE':
                 tmp = message['data']
                 try:
-                    c_svr.Aset_update(ASETS[user_id], tmp['aid'], tmp['alpha', tmp['aidA']])
+                    if user_id not in ASETS.keys():
+                        ASETS[user_id] = {}
+                    c_svr.Aset_update(ASETS[user_id], tmp['aid'], tmp['alpha'], tmp['aidA'])
                     re = 'Success'
                 except Exception as e:
                     re = f'Error: {e}'

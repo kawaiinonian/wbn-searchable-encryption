@@ -1,8 +1,12 @@
 import ctypes as c
 from typing import List, Union, Dict, Tuple
 
-from ..utils.datatype import *
-from ..utils.method import *
+import sys
+import os
+sys.path.append(os.getcwd() + "/project/shell/")
+
+from utils.datatype import *
+from utils.method import *
 
 class c_server:
     def __init__(self, sopath) -> None:
