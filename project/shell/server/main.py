@@ -1,6 +1,7 @@
 import socket
 import threading
 import pickle
+import signal
 
 import sys
 import os
@@ -10,11 +11,11 @@ from server.consts import *
 from server.c_server import *
 
 
-def save_dict(path, data):
+def save_pkl(path, data):
     with open(path, 'wb') as f:
         pickle.dump(data, f)
 
-def read_dict(path):
+def read_pkl(path):
     with open(path, 'rb') as f:
         data = pickle.load(f)
     return data
@@ -115,6 +116,22 @@ def handle_client(client_socket):
             client_socket.close()
             break
 
+def handle_quit(signum, frame):
+    try:
+        print("Quiting......")
+        while True:
+            if not clients:
+                if XSETS:
+                    save_pkl(xPath, XSETS)
+                if USETS:
+                    save_pkl(uPath, USETS)
+                if ASETS:
+                    save_pkl(aPath, ASETS)
+                exit(0)
+    except Exception as e:
+        print(f"Error: {e}")
+
+
 if __name__ == "__main__": 
     server = "wbn"
     host = "127.0.0.1"
@@ -122,6 +139,17 @@ if __name__ == "__main__":
 
     libserver = "/home/secreu/wbn-searchable-encryption/project/core/libserver.so"
     c_svr = c_server(libserver)
+
+    xPath = "project/shell/server/sets/xsets.pkl"
+    uPath = "project/shell/server/sets/usets.pkl"
+    aPath = "project/shell/server/sets/asets.pkl"
+
+    if os.path.exists(xPath):
+        XSETS = read_pkl(xPath)
+    if os.path.exists(uPath):
+        USETS = read_pkl(uPath)
+    if os.path.exists(aPath):
+        ASETS = read_pkl(aPath)
     
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
@@ -129,6 +157,10 @@ if __name__ == "__main__":
     print(f"Server begins listening on {host}: {port}")
 
     clients = []
+
+    signal.signal(signal.SIGINT, handle_quit)
+
+    print(XSETS)
 
     while True:
         client_socket, client_address = server_socket.accept()
