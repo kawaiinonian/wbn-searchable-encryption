@@ -8,9 +8,8 @@ from mycloud import models
 
 def greet(request):
     response = {}
-    name = request.GET.get('name')
-    response['msg'] = 'Hello! ' + name
-    return JsonResponse(response)
+    response['msg'] = 'Hello!'
+    return render(request, "index.html", response)
 
 
 def register(request):

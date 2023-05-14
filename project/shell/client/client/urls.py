@@ -22,5 +22,6 @@ from mycloud import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('greet/', views.greet),
-    # path(r'', TemplateView.as_view(template_name='index.html')),
+    path('', views.greet),
+    path('register_login/', views.greet),
 ]
