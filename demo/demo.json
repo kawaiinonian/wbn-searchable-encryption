@@ -1,0 +1,6 @@
+{
+    "key1": ["word1", "word2", "common_word", "word3"],
+    "key2": ["word4", "word5", "word6", "common_word"],
+    "key3": ["common_word", "word7", "word8"],
+    "key4": ["word9", "common_word", "word10", "word11", "word12"]
+}
