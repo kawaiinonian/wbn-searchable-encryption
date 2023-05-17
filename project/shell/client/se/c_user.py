@@ -1,8 +1,8 @@
 import ctypes as c
 from typing import List
 
-from ..utils.datatype import *
-from ..utils.method import *
+from se.datatype import *
+from se.method import *
 
 class c_user:
     def __init__(self, sopath:str) -> None:
@@ -67,3 +67,6 @@ class c_user:
         self.lib.search_generate(word, ukey, input_dockey, len(DOCKEY_LIST),
             input_userauth, len(USERAUTH_LIST), ret_token)
         return ret_token
+    
+    def gen_key(self):
+        return get_random_key(LAMBDA)

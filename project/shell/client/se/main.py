@@ -1,10 +1,6 @@
 import socket
 import pickle
 
-import sys
-import os
-sys.path.append(os.getcwd() + "/project/shell/")
-
 
 def recv_all(client_socket):
     data = bytearray()
