@@ -1,0 +1,168 @@
+/* General styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+/* 主体 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin:0;
+    padding: 0;
+}
+
+
+
+.header-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 图片 */
+.side-image {
+  margin-left: -60px;
+  top: 10px;
+  margin-top: -20px;
+  right: 10px;
+  width: 200px;
+}
+
+
+h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: 2.5em;
+  color: #465e65;
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 50px;
+}
+
+.custom-line {
+  border: none;
+  border-top: 1px solid white;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+/* 搜索框样式 */
+.search-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  padding: 10px;
+  width: 530px;
+  margin: 0 auto;
+  transition: width 0.5s;
+  transition-delay: 0.2s;
+  line-height: 1;
+  border: 2px solid #465e65;
+  margin-top: 20  px;
+  border-radius: 30px;
+}
+
+.search-input {
+  border: none;
+  width: 100%;
+  padding: 10px;
+  font-size: 20px;
+  background-color: transparent;
+  line-height: 1;
+  outline: none;
+
+}
+
+.search-button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  margin-left: 10px;
+  color: #007bff;
+  line-height: 1;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-button i {
+  font-size: 24px;
+  transition-duration: 0.1s;
+}
+
+.search-button i:hover {
+  font-size: 28px;
+}
+
+ 
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+}
+
+
+/* 导航栏 */
+#navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #465e65;
+  padding: 20px 0;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+}
+
+#navbar:hover {
+  opacity: 1;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.nav-button {
+  text-decoration: none;
+  color: #333;
+  background-color: #c99e8c;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: opacity 0.5s ease-in-out3s ease;
+}
+
+.nav-button:hover {
+  opacity: 0.5;
+}
+
+.nav-button i {
+  margin-right: 5px;
+}
+
+/* 加载动画 */
+
+#loading-animation {
+  width: 8%;
+  height: 8%;
+}
+ 
+
+
+
+
+
+
+
+
+
+
+  

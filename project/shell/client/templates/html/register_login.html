@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>欢迎使用加密网盘</title>
+  <link rel="stylesheet" href="../static/css/register_login.css">
+  <link rel="icon" href="../static/img/favicon.ico">
+</head>
+<body>
+  <div class="container">
+    <div class="form-warp">
+      <!-- 登录form,点击登录按钮后执行confirmloginform函数 -->
+      <form action=/register_login/ method='POST' class="sign-in-form" onsubmit="hashPassword(event)">
+        <h1 class="form-title">登录</h2>
+        <input type="text" id="username_login" placeholder="用户名" />
+        <input type="password" id="password_login" placeholder="密码" />
+        <!-- 秘密字段 -->
+        <!-- <input type="hidden" id="hashed_password" name="hashed_password" /> -->
+        <div class="error-message" id="error-message-login"></div>
+        <button type="submit" class="submit-btn">立即登录</button>
+      </form>
+      <!-- 注册form -->
+      <form action=/register_login/ method="POST" class="sign-up-form" onsubmit="validateForm(event)">
+        <h1 class="form-title">注册</h2>
+        <input type=text id="username_regis" placeholder="用户名" />
+        <input type="password" id="password_first" placeholder="密码" />
+        <input type="password" id="password_confirm" placeholder="确认密码" />
+        <div class="error-message" id="error-message-register"></div>
+        <button type="submit" class="submit-btn">立即注册</button>
+      </form>
+    </div>
+    <!-- 上方漂浮按钮 -->
+    <div class="desc-warp">
+      <div class="desc-warp-item sign-up-desc">
+        <div class="content">
+          <button id="sign-up-btn">点击注册</button>
+        </div>
+        <img src="../static/img/4.svg" alt="">
+      </div>
+      <div class="desc-warp-item sign-in-desc">
+        <div class="content">
+          <button id="sign-in-btn">点击登录</button>
+        </div>
+        <img src="../static/img/3.svg" alt="">
+      </div>
+    </div>
+  </div>
+  <script src="../static/js/register_login.js"></script>
+  <script>
+    if (window.crypto && !window.crypto.subtle && window.crypto.webkitSubtle) {
+      window.crypto.subtle = window.crypto.webkitSubtle;
+    }
+    </script>
+    
+</body>
+</html>
