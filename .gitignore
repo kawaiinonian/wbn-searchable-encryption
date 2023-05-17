@@ -12,5 +12,5 @@ project/shell/utils/__pycache__/
 project/shell/client/client/__pycache__/
 project/shell/client/mycloud/__pycache__/
 project/shell/client/mycloud/migrations/__pycache__/
-project/shell/client/templates/
 project/shell/client/db.sqlite3
+project/shell/client/se/__pycache__
