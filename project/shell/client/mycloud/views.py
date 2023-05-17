@@ -1,90 +1,112 @@
-from django.shortcuts import render
-import hashlib
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.db import transaction
 from mycloud import models
 
+from se.datatype import *
+from se.c_user import c_user
+cusr = c_user('se/libclient.so')
+
 # Create your views here.
+
+
+@csrf_exempt
+def search(request):
+    response = {}
+    if request.method == 'POST':
+        pass
+    return render(request, "search.html", response)
+
+
+@csrf_exempt
+def register_login(request):
+    response = {}
+    if request.method == 'POST':
+        type = request.POST.get('type')
+        if type == '0':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            if not username or not password:
+                response['msg'] = '请提供用户名和密码'
+                response['error'] = '1'
+                return JsonResponse(response)
+            obj_user = User.objects.filter(username=username).first()
+            if obj_user:
+                response['msg'] = '用户已存在'
+                response['error'] = '1'
+                return JsonResponse(response)
+            else:
+                user = User.objects.create_user(
+                    username=username,
+                    password=password
+                )
+                user.save()
+                obj_user = User.objects.get(username=username)
+                skey = models.SKey.objects.create(
+                    user = obj_user,
+                    sk1 = cusr.gen_key(),
+                    sk2 = cusr.gen_key(),
+                    sk3 = cusr.gen_key()
+                )
+                skey.save()
+                ukey = models.UKey.objects.create(
+                    user = obj_user,
+                    uk1 = cusr.gen_key(),
+                    uk2 = cusr.gen_key()
+                )
+                ukey.save()
+                response['msg'] = '用户注册成功'
+                response['error'] = '0'
+                response['redirect'] = '/search/'
+                return JsonResponse(response)
+        elif type == '1':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            print(username)
+            print(password)
+            try:
+                user = authenticate(request, username=username, password=password)
+                if user is None:
+                    return JsonResponse({'error': '1', 'msg': '用户名或密码错误'})
+                login(request, user)
+                response['msg'] = 'success'
+                response['error'] = '0'
+                response['redirect'] = '/search/'
+            except Exception as e:
+                print(e)
+                response['msg'] = '用户名或密码错误'
+                response['error'] = '1'
+            return JsonResponse(response)
+    return render(request, "register_login.html", response)
+
+
+def logout_view(request):
+    logout(request)
+    return JsonResponse({'redirect': '/register_login/'})
+
+def update_password(request):
+    response = {}
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        try:
+            obj_user = User.objects.get(username=username, password=old_password)
+            obj_user.password = new_password
+            obj_user.save()
+            response['msg'] = 'success'
+            response['error'] = '0'
+        except Exception as e:
+            response['msg'] = f'用户id或原密码错误: {e}'
+            response['error'] = '1'
+    return render(request, "register_login.html", response)
+
 
 def greet(request):
     response = {}
     response['msg'] = 'Hello!'
     return render(request, "index.html", response)
-
-
-def register(request):
-    response = {}
-    if request.method == 'GET':
-        username = request.GET.get('username')
-        password = request.GET.get('password')
-        hl = hashlib.md5()
-        hl.update(password.encode(encoding='utf-8'))
-        password = hl.hexdigest()
-        user_list = models.USERS.objects.filter(username=username)
-        if user_list:
-            response['msg'] = '用户名已经存在'
-            response['error_num'] = 1
-            response['redirect'] = 'register'   # 转入register
-        else:
-            down = models.USERS.objects.order_by('-userid')
-            if down:
-                userid = down[0].userid + 1
-            else:
-                userid = 100001
-            user = models.USERS.objects.create(
-                userid=userid,
-                user_name=username,
-                password=password
-            )
-            user.save()
-            response['userid'] = userid
-            response['msg'] = 'success'
-            response['error_num'] = 0
-            response['redirect'] = 'login'      # 转入login
-    return JsonResponse(response)
-
-
-def login(request):
-    response = {}
-    if request.method == 'GET':
-        userid = request.GET.get('userid')
-        password = request.GET.get('password')
-        hl = hashlib.md5()
-        hl.update(password.encode(encoding='utf-8'))
-        password = hl.hexdigest()
-        try:
-            obj_user = models.USERS.objects.get(userid=userid, password=password)
-            response['msg'] = 'success'
-            response['error_num'] = 0
-            response['redirect'] = 'home'  # 转入home界面
-        except Exception as e:
-            response['msg'] = f'用户id或密码错误: {e}'
-            response['error_num'] = 1
-    return JsonResponse(response)
-
-
-def update_password(request):
-    response = {}
-    if request.method == 'GET':
-        userid = request.GET.get('userid')
-        old_password = request.GET.get('old_password')
-        new_password = request.GET.get('new_password')
-        hl1 = hashlib.md5()
-        hl1.update(old_password.encode(encoding='utf-8'))
-        old_password = hl1.hexdigest()
-        hl2 = hashlib.md5()
-        hl2.update(new_password.encode(encoding='utf-8'))
-        new_password = hl2.hexdigest()
-        try:
-            obj_user = models.USERS.objects.get(userid=userid, password=old_password)
-            obj_user.password = new_password
-            obj_user.save()
-            response['msg'] = 'success'
-            response['error_num'] = 0
-            response['redirect'] = 'login'      # 重新登陆
-        except Exception as e:
-            response['msg'] = f'用户id或原密码错误: {e}'
-            response['error_num'] = 1
-            response['redirect'] = 'home'
-    return JsonResponse(response)
 

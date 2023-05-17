@@ -16,12 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.views.generic.base import TemplateView
 from mycloud import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('greet/', views.greet),
-    path('', views.greet),
-    path('register_login/', views.greet),
+    path('', views.register_login),
+    path('register_login/', views.register_login),
+    path('search/', views.search),
+    
 ]
