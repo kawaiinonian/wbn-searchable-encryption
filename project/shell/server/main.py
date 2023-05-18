@@ -55,7 +55,7 @@ def handle_client(client_socket):
                         XSETS[user_id] = {}
                     XSETS[user_id] |= tmp
                     print(XSETS)
-                    re = 'Success'
+                    re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'ADD', 'data': re}
@@ -67,7 +67,7 @@ def handle_client(client_socket):
                     if user_id not in USETS.keys():
                         USETS[user_id] = {}
                     USETS[user_id] |= tmp
-                    re = 'Success'
+                    re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'ONLINE', 'data': re}
@@ -79,7 +79,7 @@ def handle_client(client_socket):
                     if user_id not in ASETS.keys():
                         ASETS[user_id] = {}
                     c_svr.Aset_update(ASETS[user_id], tmp['aid'], tmp['alpha'], tmp['aidA'])
-                    re = 'Success'
+                    re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'OFFLINE', 'data': re}

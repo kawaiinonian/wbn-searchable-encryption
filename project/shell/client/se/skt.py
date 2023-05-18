@@ -1,6 +1,9 @@
 import socket
 import pickle
 
+SERVER_HOST = "127.0.0.1"
+SERVER_PORT = 12345
+SERVER_NAME = 'wbn'
 
 def recv_all(client_socket):
     data = bytearray()
@@ -23,13 +26,13 @@ def send_all(client_socket, data):
 
 if __name__ == "__main__":
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(("127.0.0.1", 12345))
+    client_socket.connect((SERVER_HOST, SERVER_PORT))
     # while True:
-    user_id = 'secreu'
+    username = 'secreu'
     server = 'wbn'
     function = 'ADD'
     data = {b'123': b'123'}
-    message = {'src': user_id, 'dst': server, 'function': function, 'data': data}
+    message = {'src': username, 'dst': SERVER_NAME, 'function': function, 'data': data}
     serialized_data = pickle.dumps(message)
     send_all(client_socket, serialized_data)
 
