@@ -1,20 +1,79 @@
+import socket
+import pickle
+
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.db import transaction
 from mycloud import models
 
-from se.datatype import *
+from se.skt import recv_all, send_all, SERVER_HOST, SERVER_PORT, SERVER_NAME
+from se.datatype import LAMBDA, SEARCH_KEY
+from se.method import get_fd
 from se.c_user import c_user
 cusr = c_user('se/libclient.so')
 
 # Create your views here.
 
-
+@login_required
 @csrf_exempt
 def search(request):
+    response = {}
+    if request.method == 'POST':
+        pass
+    return render(request, "search.html", response)
+
+
+@login_required
+@csrf_exempt
+def add(request):
+    response = {}
+    if request.method == 'POST':
+        fun = 'ADD'
+        user = request.user
+        username = user.username
+        skey = models.SKey.objects.get(user=user)
+        sk = SEARCH_KEY(skey.sk1, skey.sk2, skey.sk3)
+        documents = request.POST.get('documents')
+        
+        file = []
+        for k, v in documents.items():
+            file.append(get_fd(v, bytes(username).ljust(LAMBDA) + bytes(k).ljust(LAMBDA)))
+        xset, num = cusr.updateData_generate(sk, file)
+        xset = {bytes(x.xwd): bytes(x.ywd) for x in xset}
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': xset}
+        serialized_data = pickle.dumps(message)
+        send_all(client_socket, serialized_data)
+        res_data = recv_all(client_socket)
+        res = pickle.loads(res_data)
+
+        response['error'] = '1'
+        if res['data'] == 'SUCCESS':
+            response['error'] = '0'
+        response['msg'] = res['data']
+        return JsonResponse(response)
+
+
+@login_required
+@csrf_exempt
+def online_auth(request):
+    response = {}
+    if request.method == 'POST':
+        user = request.user
+
+    return render(request, "search.html", response)
+
+
+@login_required
+@csrf_exempt
+def offline_auth(request):
     response = {}
     if request.method == 'POST':
         pass
@@ -58,6 +117,7 @@ def register_login(request):
                     uk2 = cusr.gen_key()
                 )
                 ukey.save()
+                login(request, user)
                 response['msg'] = '用户注册成功'
                 response['error'] = '0'
                 response['redirect'] = '/search/'
@@ -83,10 +143,13 @@ def register_login(request):
     return render(request, "register_login.html", response)
 
 
+@login_required
 def logout_view(request):
     logout(request)
     return JsonResponse({'redirect': '/register_login/'})
 
+
+@login_required
 def update_password(request):
     response = {}
     if request.method == 'POST':
