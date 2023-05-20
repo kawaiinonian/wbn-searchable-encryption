@@ -93,11 +93,17 @@ for n in num:
     t2 = time.time()
     using_time.append(t2-t1)
 
-    
+
+save_path = os.getcwd() + "/project/lab/fig/"    
+import os
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
 x = np.array(np.log10(num))
 y = np.array(using_time)
 plt.plot(x, y)
 plt.title("Auth layers vs. Calculation time")
 plt.xlabel("Auth layers")
 plt.ylabel("Calculation time")
-plt.show()
+# plt.show()
+plt.savefig(save_path + "file_count_vs_calculation_time.png", dpi=300)

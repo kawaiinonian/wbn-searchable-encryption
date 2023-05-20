@@ -33,7 +33,7 @@ def load_data_as_bytes(file_name):
 path = os.getcwd() + "/project/lab/data/enron10w_washed.json"
 libclient = os.getcwd() + "/project/core/libclient.so"
 usr1 = b"helloworld".ljust(LAMBDA)
-num = [1000, 3000, 5000, 10000, 20000, 30000, 50000]
+num = [100, 300, 500, 1000, 3000, 5000]
 sk = SEARCH_KEY(
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
@@ -44,22 +44,40 @@ files = []
 for k, v in document.items():
     files.append(get_fd(v, usr1+bytes(k).ljust(LAMBDA)))
 docs = [usr1+d.ljust(LAMBDA) for d in document.keys()]
+from itertools import islice
+unique_words = set()
+for k, v in islice(document.items(), 5000):
+    unique_words.update(v)
+print("unique words in 5000 files:%d"%len(unique_words))
 
 cusr = c_user(libclient)
 print("load client core success")
 using_time = []
+xwds = []
 
-for n in num:
-    t1 = time.time()
-    file = files[:n]
-    _, _ = cusr.updateData_generate(sk, file)
-    t2 = time.time()
-    using_time.append(t2-t1)
+# for n in num:
+#     file = files[:n]
+#     ws = 0
+#     for f in file:
+#         ws += f.wordlen
+#     xwds.append(ws)
+#     t1 = time.time()
+#     _, _ = cusr.updateData_generate(sk, file)
+#     t2 = time.time()
+#     using_time.append(t2-t1)
+#     print(t2-t1)
 
-x = np.array(num)
-y = np.array(using_time)
-plt.plot(x, y)
-plt.title("File count to update vs. Calculation time")
-plt.xlabel("File count to update")
-plt.ylabel("Calculation time")
-plt.show()
+
+# save_path = os.getcwd() + "/project/lab/fig/"    
+# import os
+# if not os.path.exists(save_path):
+#     os.makedirs(save_path)
+# x = np.array(xwds)
+# y = np.array(using_time)
+# plt.plot(x, y)
+# plt.title("File count to update vs. Calculation time")
+# plt.xlabel("File count to update")
+# plt.ylabel("Calculation time")
+# # plt.show()
+# plt.savefig(save_path + "file_count_vs_calculation_time.png", dpi=300)
+# plt.close()
