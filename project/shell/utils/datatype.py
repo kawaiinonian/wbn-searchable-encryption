@@ -11,6 +11,7 @@ FILE_DESC_LEN = 1100
 FILE_DESC_LEN_ENC = 1104
 
 type_key = c_ubyte * LAMBDA
+type_element = c_ubyte * (LAMBDA + 1)
 type_word = c_ubyte * WORD_LEN
 type_words = type_word * MAX_WORD
 type_path = c_ubyte * PATH_LEN
@@ -48,12 +49,12 @@ class USER_AUTH(Structure):
     _fields_ = [
         ("d", type_d),
         ("uid", type_key),
-        ("offtok", type_key),        
+        ("offtok", type_element),        
     ]
 
 class Xset_item(Structure):
     _fields_ = [
-        ("xwd", type_key),
+        ("xwd", type_element),
         ("ywd", type_d_enc),
     ]
 
@@ -77,5 +78,5 @@ class Uset_item(Structure):
 class Token(Structure):
     _fields_ = [
         ("uid", type_key),
-        ("stk", type_key),
+        ("stk", type_element),
     ]

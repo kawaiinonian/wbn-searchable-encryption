@@ -34,6 +34,13 @@ def get_key_from_bytes(data: bytes):
     memmove(ret, data, len(data))
     return ret
 
+def get_element_from_bytes(data: bytes):
+    if len(data) > LAMBDA+1:
+        raise IndexError
+    ret = type_element()
+    memmove(ret, data, len(data))
+    return ret
+
 def get_d_from_bytes(data: bytes):
     if len(data) > FILE_DESC_LEN:
         raise IndexError
