@@ -1,137 +1,34 @@
 #include "server.h"
-#ifdef DEBUG
-typedef std::vector<ASET_ITEM> ASET_LIST;
-#endif
 
-// void Aset_update(ASET_LIST &Aset, ASET_ITEM aitem) {
-//     int i, j, k;
-//     int cmp1, cmp2;
 
-//     cmp1 = cmp2 = 1;
-//     for (k = 0; k < Aset.size(); k++) {
-//         if (cmp1 != 0) {
-//             cmp1 = memcmp(Aset[k].aid, aitem.aid, LAMBDA); // check aid
-//             if (cmp1 == 0) i = k;
-//         }
-//         if (cmp2 != 0) {
-//             cmp2 = memcmp(Aset[k].aid, aitem.f_aid, LAMBDA); // check f_aid
-//             if (cmp2 == 0) j = k;
-//         }
-//         if (cmp1 == 0 && cmp2 == 0) { // both found
-//             break;
-//         }
-//     }
-
-//     if (cmp1 != 0) { // if ASet[aid] is NULL, then init
-//         Aset.push_back(aitem);
-//         i = k;
-//     }
-
-//     if (cmp2 == 0) { // if f_aid found
-//         Aset[j].c_aid.push_back(Aset[i].aid);
-//         fp_mul_comba(Aset[i].trapgate, Aset[i].trapgate, Aset[j].trapgate);
-//     }
-
-//     return;
-// }
-#ifdef DEBUG
-#include <fstream>
-
-const char* filename = "/home/kawaiinonian/project/debug";
-
-void debug(const uint8_t* d, int len) {
-  std::ofstream outfile;
-  outfile.open(filename, std::ios_base::app | std::ios_base::binary);
-  for (int i = 0; i < len; ++i) {
-    outfile << static_cast<int>(d[i]);
-  }
-  outfile << '\n';
-  outfile.close();
-}
-#endif
 void get_multi(uint8_t *key1, uint8_t *key2, uint8_t *ret) {
-    fp_t _key1, _key2, _ret;
-    fp_read_bin(_key1, key1, LAMBDA);
-    fp_read_bin(_key2, key2, LAMBDA);
-    fp_mul_comba(_ret, _key1, _key2);
-    fp_write_bin(ret, LAMBDA, _ret);
-    #ifdef DEBUG
-    debug(ret, LAMBDA);
-    #endif
+    bn_t a, b, c;
+    bn_new(a);
+    bn_new(b);
+    bn_new(c);
+    bn_read_bin(a, key1, LAMBDA);
+    bn_read_bin(b, key2, LAMBDA);
+    bn_mul(c, a, b);
+    bn_mod(c, c, n);
+    bn_write_bin(ret, LAMBDA, c);
+    bn_free(a);
+    bn_free(b);
+    bn_free(c);
 }
 
 void get_exp(uint8_t *key1, uint8_t *key2, uint8_t *ret) {
-    fp_t base, result, index;
-    bn_t index_bn;
-    fp_read_bin(base, key1, LAMBDA);
-    fp_read_bin(index, key2, LAMBDA);
-    fp_prime_back(index_bn, index);
-    fp_exp_monty(result, base, index_bn);
-    fp_write_bin(ret, LAMBDA, result);
+    ep_t element, result;
+    ep_new(element);
+    ep_new(result);
+    bn_t index;
+    bn_new(index);
+    ep_read_bin(element, key1, LAMBDA+1);
+    bn_read_bin(index, key2, LAMBDA);
+    ep_mul_basic(result, element, index);
+    // ep_print(result);
+    ep_write_bin(ret, LAMBDA+1, result, true);
+    ep_free(element);
+    ep_free(result);
+    bn_free(index);
 }
-// void search(QUERY_LIST query, fp_t aid, ASET_LIST Aset, USET_LIST Uset, XSET_LIST Xset,
-//     std::vector<uint8_t *> &query_response) {
-//     fp_t x;
-//     int i, j, cmp;
 
-//     for (i = 0; i < query.size(); i++) {
-//         cmp = 1;
-//         for (j = 0; j < Uset.size(); j++) {
-//             cmp = memcmp(Uset[j].uid, query[i].uid, LAMBDA);
-//             if (cmp == 0) {
-//                 break;
-//             }
-//         }
-//         assert(cmp == 0);
-
-//         fp_mul_comba(x, query[i].stk_d, Uset[j].ud);
-//         if (aid) { // if aid works
-//             cmp = 1;
-//             for (j = 0; j < Aset.size(); j++) {
-//                 cmp = memcmp(Aset[j].aid, aid, LAMBDA);
-//                 if (cmp == 0) {
-//                     break;
-//                 }
-//             }
-//             assert(cmp == 0);
-//             fp_mul_comba(x, x, Aset[j].trapgate);
-//         }
-
-//         cmp = 1;
-//         for (j = 0; j < Xset.size(); j++) {
-//             cmp = memcmp(Xset[j].xwd, x, LAMBDA);
-//             if (cmp == 0) {
-//                 break;
-//             }
-//         }
-//         assert(cmp == 0);
-//         query_response.push_back(Xset[j].ywd);
-//     }
-
-//     return;
-// }
-
-// int main() {
-//     ASET_LIST Aset;
-//     ASET_ITEM a1, a2;
-
-//     setting_init();
-
-//     memset(a1.aid, 0, LAMBDA);
-//     memset(a1.trapgate, 0, LAMBDA);
-
-//     memset(a2.aid, 1, LAMBDA);
-//     memset(a1.trapgate, 1, LAMBDA);
-//     memset(a2.f_aid, 0, LAMBDA);
-
-//     Aset.push_back(a1);
-//     Aset.push_back(a2);
-
-//     ASET_ITEM in;
-//     memset(in.aid, 1, LAMBDA);
-//     memset(in.trapgate, 1, LAMBDA);
-//     memset(in.f_aid, 0, LAMBDA);
-//     Aset_update(Aset, in);
-
-//     return 0;
-// }

@@ -149,22 +149,22 @@ class DOCKEY_ITEM {
 class DOCKEY {
     public:
     uint8_t d[PATH_LEN], Kd_enc[LAMBDA], Kd[LAMBDA];
-    DOCKEY(uint8_t d[], DOCKEY_ITEM item) {
+    DOCKEY(uint8_t d[], uint8_t Kd_enc[], uint8_t Kd[]) {
         memcpy(this->d, d, PATH_LEN);
-        memcpy(this->Kd, item.Kd, LAMBDA);
-        memcpy(this->Kd_enc, item.Kd_enc, LAMBDA);
+        memcpy(this->Kd, Kd, LAMBDA);
+        memcpy(this->Kd_enc, Kd_enc, LAMBDA);
     }
 };
 
 
 class USER_AUTH {
     public:
-    uint8_t d[PATH_LEN], uid[LAMBDA], offtok[LAMBDA];
+    uint8_t d[PATH_LEN], uid[LAMBDA], offtok[LAMBDA+1];
     //std::vector<std::byte[LAMBDA]> AList;
-    USER_AUTH(uint8_t d[], fp_t uid, fp_t offtok) {
+    USER_AUTH(uint8_t d[], uint8_t uid[], ep_t offtok) {
         memcpy(this->d, d, PATH_LEN);
-        fp_write_bin(this->uid, LAMBDA, uid);
-        fp_write_bin(this->offtok, LAMBDA, offtok);
+        memcpy(this->uid, uid, LAMBDA);
+        ep_write_bin(this->offtok, LAMBDA+1, offtok, true);
     }
 };
 
@@ -180,7 +180,7 @@ class QUERY_ITEM {
 
 class XSET_ITEM {
     public:
-    uint8_t xwd[LAMBDA], ywd[PATH_LEN+16];
+    uint8_t xwd[LAMBDA+1], ywd[PATH_LEN+16];
     XSET_ITEM() {
         memset(xwd, 0, sizeof(xwd));
         memset(ywd, 0, sizeof(ywd));
@@ -208,12 +208,15 @@ class USET_ITEM {
 
 class USER_AUTH_ITEM {
     public:
-    // uint8_t uid[LAMBDA], offtok[LAMBDA];
-    fp_t uid, offtok;
+    uint8_t uid[LAMBDA], offtok[LAMBDA+1];
     USER_AUTH_ITEM(uint8_t uid[], uint8_t offtok[]) {
-        fp_read_bin(this->uid, uid, LAMBDA);
-        fp_read_bin(this->offtok, offtok, LAMBDA);
+        memcpy(this->uid, uid, LAMBDA);
+        memcpy(this->offtok, offtok, LAMBDA+1);
     }
+    // ~USER_AUTH_ITEM() {
+    //     // delete []this->uid;
+    //     ep_free(this->offtok);
+    // }
 };
 
 struct Uint8ArrayComparator {
@@ -233,9 +236,9 @@ struct Uint8ArrayComparator {
 
 class TOKEN {
     public:
-    uint8_t uid[LAMBDA], stk[LAMBDA];
-    TOKEN(fp_t uid, fp_t stk) {
-        fp_write_bin(this->uid, LAMBDA, uid);
-        fp_write_bin(this->stk, LAMBDA, stk);
+    uint8_t uid[LAMBDA], stk[LAMBDA+1];
+    TOKEN(uint8_t uid[], ep_t stk) {
+        memcpy(this->uid, uid, LAMBDA);
+        ep_write_bin(this->stk, LAMBDA+1, stk, true);
     }
 };

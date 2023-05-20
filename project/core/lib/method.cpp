@@ -1,8 +1,14 @@
 #include "method.h"
+#include <iostream>
 
 void setting_init() {
     core_init();
-    fp_param_set(NIST_256);
+    ep_param_set(NIST_256);
+    ep_new(g);
+    bn_new(n);
+    ep_curve_get_gen(g);
+    ep_curve_get_ord(n);
+    std::cout << bn_is_prime(n) << std::endl;
 }
 
 // void F(uint8_t *key, uint8_t *msg, fp_t result) {
