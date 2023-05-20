@@ -13,8 +13,8 @@ from django.db import transaction
 from mycloud import models
 
 from se.skt import recv_all, send_all, SERVER_HOST, SERVER_PORT, SERVER_NAME
-from se.datatype import LAMBDA, SEARCH_KEY
-from se.method import get_fd
+from se.datatype import LAMBDA, SEARCH_KEY, USER_KEY, USER_AUTH, DOC_KEY
+from se.method import get_fd, get_key_from_bytes, get_d_from_bytes, get_element_from_bytes, get_word_from_bytes
 from se.c_user import c_user
 cusr = c_user('se/libclient.so')
 
@@ -25,8 +25,51 @@ cusr = c_user('se/libclient.so')
 def search(request):
     response = {}
     if request.method == 'POST':
-        pass
-    return render(request, "search.html", response)
+        fun = 'SEARCH'
+        word = request.POST.get('word')
+        if not word:
+            return JsonResponse({'msg': '请提供检索的关键词', 'error': '1'})
+        word = get_word_from_bytes(bytes(word))
+        user = request.user
+        username = user.username
+        ukey = models.SKey.objects.get(user=user)
+        uk = SEARCH_KEY(
+            get_key_from_bytes(ukey.uk1),
+            get_key_from_bytes(ukey.uk2)
+        )
+        userauth = models.UsrAuth.objects.filter(user=user)
+        if userauth is None:
+            userauth = []
+        else:
+            userauth = [USER_AUTH(
+                    get_d_from_bytes(o.d),
+                    get_key_from_bytes(o.uid),
+                    get_element_from_bytes(o.offtok)
+                ) for o in userauth]
+        dockey = models.DocKey.objects.filter(user=user)
+        dockey = [DOC_KEY(
+                get_d_from_bytes(d.d), 
+                get_key_from_bytes(d.kdenc), 
+                get_key_from_bytes(d.kd)
+            ) for d in dockey]
+        
+        ret_token = cusr.search_generate(word, uk, dockey, userauth)
+        token = [(bytes(t.uid), bytes(t.stk)) for t in ret_token]
+        
+        user_aid = models.Aid.objects.get(user=user)
+        if user_aid is None:
+            aid = None
+
+        data = {'token': token, 'aid': aid}
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
+        serialized_data = pickle.dumps(message)
+        send_all(client_socket, serialized_data)
+        res_data = recv_all(client_socket)
+        res = pickle.loads(res_data)
+
+        for ywd in res:
+            
 
 
 @login_required
@@ -38,7 +81,11 @@ def add(request):
         user = request.user
         username = user.username
         skey = models.SKey.objects.get(user=user)
-        sk = SEARCH_KEY(skey.sk1, skey.sk2, skey.sk3)
+        sk = SEARCH_KEY(
+            get_key_from_bytes(skey.sk1), 
+            get_key_from_bytes(skey.sk2), 
+            get_key_from_bytes(skey.sk3)
+        )
         documents = request.POST.get('documents')
         
         file = []
@@ -58,6 +105,7 @@ def add(request):
         if res['data'] == 'SUCCESS':
             response['error'] = '0'
         response['msg'] = res['data']
+
         return JsonResponse(response)
 
 
@@ -66,9 +114,54 @@ def add(request):
 def online_auth(request):
     response = {}
     if request.method == 'POST':
-        user = request.user
+        tar_name = request.POST.get('username')
+        tar_user = User.objects.get(username=tar_name)
+        if tar_user is None:
+            return JsonResponse({'msg': '目标用户不存在', 'error': '1'})
 
-    return render(request, "search.html", response)
+        fun = 'ONLINE'
+        user = request.user
+        username = user.username
+        documents = request.POST.get('documents')
+        
+        skey = models.SKey.objects.get(user=user)
+        sk = SEARCH_KEY(
+            get_key_from_bytes(skey.sk1),
+            get_key_from_bytes(skey.sk2),
+            get_key_from_bytes(skey.sk3)
+        )
+        ukey = models.UKey.objects.get(user=tar_user)
+        uk = USER_KEY(
+            get_key_from_bytes(ukey.uk1),
+            get_key_from_bytes(ukey.uk2)
+        )
+
+        doc = [bytes(username).ljust(LAMBDA) + d.ljust(LAMBDA) for d in documents]
+        dockey, uset = cusr.online_auth(sk, uk, doc)
+        uset = {bytes(u.uid): bytes(u.ud) for u in uset}
+        
+        for key in dockey:
+            dk = models.DocKey.objects.create(
+                user = tar_user,
+                d = bytes(key.d),
+                kd = bytes(key.kd),
+                kdenc = bytes(key.kd_enc)
+            )
+            dk.save()
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': uset}
+        serialized_data = pickle.dumps(message)
+        send_all(client_socket, serialized_data)
+        res_data = recv_all(client_socket)
+        res = pickle.loads(res_data)
+
+        response['error'] = '1'
+        if res['data'] == 'SUCCESS':
+            response['error'] = '0'
+        response['msg'] = res['data']
+
+        return JsonResponse(response)
 
 
 @login_required
@@ -76,8 +169,81 @@ def online_auth(request):
 def offline_auth(request):
     response = {}
     if request.method == 'POST':
-        pass
-    return render(request, "search.html", response)
+        tar_name = request.POST.get('username')
+        tar_user = User.objects.get(username=tar_name)
+        if tar_user is None:
+            return JsonResponse({'msg': '目标用户不存在', 'error': '1'})
+
+        fun = 'OFFLINE'
+        user = request.user
+
+        user_aid = models.Aid.objects.get(user=user)
+        if user_aid in None:
+            return JsonResponse({'msg': '你还未被授权其他文件，无法分发授权', 'error': '1'})
+        aida = user_aid.aid
+        username = user.username
+        documents = request.POST.get('documents')
+        doc = [bytes(username).ljust(LAMBDA) + d.ljust(LAMBDA) for d in documents]
+        ub = get_key_from_bytes(bytes(tar_name))
+        ukey1 = models.UKey.objects.get(user=user)
+        uk1 = USER_KEY(
+            get_key_from_bytes(ukey1.uk1),
+            get_key_from_bytes(ukey1.uk2)
+        )
+        ukey2 = models.UKey.objects.get(user=tar_user)
+        uk2 = USER_KEY(
+            get_key_from_bytes(ukey2.uk1),
+            get_key_from_bytes(ukey2.uk2)
+        )
+        userauth = models.UsrAuth.objects.filter(user=user)
+        if userauth is None:
+            userauth = []
+        else:
+            userauth = [USER_AUTH(
+                    get_d_from_bytes(o.d),
+                    get_key_from_bytes(o.uid),
+                    get_element_from_bytes(o.offtok)
+                ) for o in userauth]
+        dockey = models.DocKey.objects.filter(user=user)
+        dockey = [DOC_KEY(
+                get_d_from_bytes(d.d), 
+                get_key_from_bytes(d.kdenc), 
+                get_key_from_bytes(d.kd)
+            ) for d in dockey]
+
+        aset, ret_auth, ret_key = cusr.offline_auth(uk1, uk2, doc, ub, dockey, userauth)
+
+        for key in ret_key:
+            dk = models.DocKey.objects.create(
+                user = tar_user,
+                d = bytes(key.d),
+                kd = bytes(key.kd),
+                kdenc = bytes(key.kd_enc)
+            )
+            dk.save()
+        for auth in ret_auth:
+            au = models.UsrAuth.objects.create(
+                user = tar_user,
+                d = bytes(auth.d),
+                uid = bytes(auth.uid),
+                offtok = bytes(auth.offtok)
+            )
+            au.save()
+
+        data = {'aid': bytes(aset.aid), 'alpha': bytes(aset.trapgate), 'aidA': aida}
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
+        serialized_data = pickle.dumps(message)
+        send_all(client_socket, serialized_data)
+        res_data = recv_all(client_socket)
+        res = pickle.loads(res_data)
+
+        response['error'] = '1'
+        if res['data'] == 'SUCCESS':
+            response['error'] = '0'
+        response['msg'] = res['data']
+
+        return JsonResponse(response)
 
 
 @csrf_exempt
@@ -125,8 +291,6 @@ def register_login(request):
         elif type == '1':
             username = request.POST.get('username')
             password = request.POST.get('password')
-            print(username)
-            print(password)
             try:
                 user = authenticate(request, username=username, password=password)
                 if user is None:
