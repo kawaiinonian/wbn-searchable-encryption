@@ -41,10 +41,11 @@ h1 {
 /* nav只有标题和用户 */
 nav {
   position: relative;
-    background-color: #67819A;;
-    color: #fff;
-    padding: 30px;
+  background: linear-gradient(to bottom, #768dcb, #DBDFEA);
+  color: #fff;
+  padding: 30px;
 }
+
 
 /* 当按键移动到files等按键或者按下按钮后渐变改变样式 */
 .nav-item {
@@ -81,6 +82,7 @@ hr {
 /* 上传文件搜索框一列细分 */
 main{
   background-color: #fff;
+  margin-top: -1%;
 }
 /* 搜索栏，排序，上传文件 */
 .button-container {
@@ -89,7 +91,6 @@ main{
   align-items: center;
   justify-content: space-between; /* 如果你希望按钮之间有一些空间 */
 
-  background-color: #fff;
   margin-bottom: 0%;
 }
 
@@ -106,10 +107,10 @@ main{
   }
   
   .file-label:hover {
-      color: #bbbbbb;
+      color: black;
   }
 
-  .file-label:action:{
+  .file-label:action{
     color: #888888;
   }
   .file-input {
@@ -122,13 +123,12 @@ main{
   
   /* 给排序框,搜索框加上样式 */
   .sort-box {
-    margin-left: 20px;
-    display: flex;
+    margin-left: 0px;
     align-items: center;
-    margin-left: 700px;
+    margin-left: 20%;
   }
 
-  /* 排序狂选择按键的样式 */
+  /* 排序框选择按键的样式 */
   .sort-select {
     padding: 8px;
     border-radius: 5px;
@@ -172,7 +172,8 @@ main{
     background-color: #f5f5f5;
     border-radius: 5px;
     padding: 5px;
-    margin-left: 300px;
+    margin-left: 30%;
+    margin-right: 13%;
     width: 300px;
     transition: width 0.5s;
     transition-delay: 0.2s;
@@ -180,7 +181,7 @@ main{
   }
   
 
-  
+  /* 搜索框 */
   .search-input {
     border: none;
     width: 100%;
@@ -245,6 +246,7 @@ main{
     box-shadow: 0 1px #666;
     transform: translateY(1px); /* 按钮向下移动1px */
   }
+  
   
   .action-button {
     border: none;
@@ -422,18 +424,26 @@ ul#files li {
       }
 
 /* 分享面板样式 */
-.share-panel {
-  opacity: 0;
-  transition: opacity 1s; /* 逐渐显现 */
-  position: absolute; /* 在分享按钮旁边显示 */
-  right: 50px; /* 调整为适合你的值 */
-  z-index: 1000; /* 覆盖其他内容 */
-  border: 1px solid #ccc; /* 添加边框 */
-  margin-bottom: 50px;
-
+.swal2-popup .share-panel i {
+  font-size: 24px;
+  margin: 0 10px;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
 }
 
-.share-panel.show {
-  opacity: 1;
+.swal2-popup .share-panel i:hover {
+  color: #007BFF;
 }
+
+  .swal2-title {
+    font-weight: bold;
+    color: #555;
+  }
+  .keyword {
+    font-weight: bold;
+    color: #f00;
+  }
+
+
 

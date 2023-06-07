@@ -9,6 +9,9 @@
   box-sizing: border-box;
   color: #f5c386;
 }
+/* body {
+  background: linear-gradient(to bottom, #AFD3E2, #F6F1F1);
+} */
 
 .container {
   position: relative;
@@ -22,7 +25,7 @@
   width: 2000px;
   height: 2000px;
   border-radius: 50%;
-  background-image: linear-gradient(-45deg, #c99e8c 0%, #465e65 100%);  /*背景上创建一个线性渐变，可以创建平滑过度的效果*/
+  background-image: linear-gradient(-45deg,  #FFEAD2 0%,#5c78c7  100%);  /*背景上创建一个线性渐变，可以创建平滑过度的效果*/
   transition: 1.8s ease-in-out;   /*这是css的一个动画缓动函数，指定动画变化*/
   z-index: 6;
   top: -10%;
@@ -59,7 +62,7 @@
   z-index: 4;
 }
 .form-title {
-  color: #c99e8c;
+  color: #ACB1D6;
 }
 .form-warp .sign-up-form {
   opacity: 0;
@@ -87,14 +90,14 @@ input
   border-radius: 60px;
   color: #333;
   background-color: #6267f513;
-  border: none;
+  border: 1px solid #ACB1D6;
 }
 
 input::placeholder {
   color: #E1DBE9;
 }
 .submit-btn {
-  background-color: #c99e8c;
+  background-color: #ACB1D6;
   color: #FFF;
   text-align: center;
   min-width: 150px;

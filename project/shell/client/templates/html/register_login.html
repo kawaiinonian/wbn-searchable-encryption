@@ -8,6 +8,7 @@
   <title>欢迎使用加密网盘</title>
   <link rel="stylesheet" href="../static/css/register_login.css">
   <link rel="icon" href="../static/img/favicon.ico">
+
 </head>
 <body>
   <div class="container">
@@ -49,6 +50,9 @@
     </div>
   </div>
   <script src="../static/js/register_login.js"></script>
+  <!-- 美化弹出框 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
   <script>
     if (window.crypto && !window.crypto.subtle && window.crypto.webkitSubtle) {
       window.crypto.subtle = window.crypto.webkitSubtle;

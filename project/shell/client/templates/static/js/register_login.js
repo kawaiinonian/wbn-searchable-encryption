@@ -22,7 +22,7 @@ async function hash(password) {
   return hashHex;
 }
 
-//登录:密码进行哈希
+///登录:密码进行哈希
 async function hashPassword(event) {
   event.preventDefault();
 
@@ -62,7 +62,17 @@ async function hashPassword(event) {
   }
   
   if (data['redirect']) {
-    window.location.href = data['redirect'];
+    Swal.fire({
+      title: 'Welcome to Your Cloud!',
+      text: 'Redirecting to the dashboard...',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 2000,  //自动关闭定时器
+      showConfirmButton: false  //不显示确认按钮
+    }).then(() => {
+      // 在2秒后跳转到其他页面
+      window.location.href = data['redirect']; // 替换为你想要跳转的页面
+    });
   }
 }
 
@@ -111,9 +121,38 @@ async function validateForm(event) {
     }
     
     if (data['redirect']) {
-      window.location.href = data['redirect'];
+      Swal.fire({
+        title: 'Welcome to Your Cloud!',
+        text: 'Redirecting to the dashboard...',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        timer: 2000,  //自动关闭定时器
+        showConfirmButton: false  //不显示确认按钮
+      }).then(() => {
+        // 在2秒后跳转到其他页面
+        window.location.href = data['redirect']; // 替换为你想要跳转的页面
+      });
     }
   }
 }
 
+
+// // 假设登录成功，显示welcome，样式比较好看
+// document.querySelector('.submit-btn').addEventListener('click', function(event) {
+//   // 阻止表单的默认提交行为
+//   event.preventDefault();
+
+//   // 使用SweetAlert2显示Welcome信息
+//   Swal.fire({
+//     title: 'Welcome to Your Cloud!',
+//     text: 'Redirecting to the dashboard...',
+//     icon: 'success',
+//     confirmButtonText: 'OK',
+//     timer: 2000,  //自动关闭定时器
+//     showConfirmButton: false  //不显示确认按钮
+//   }).then(() => {
+//     // 在2秒后跳转到其他页面
+//     window.location.href = '../html/search.html'; // 替换为你想要跳转的页面
+//   });
+// });
 

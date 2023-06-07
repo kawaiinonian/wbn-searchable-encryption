@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <title>My Cloud Storage</title>
     <link rel="stylesheet" href="../static/css/upload.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/1L_dstPt3WjK4/8/1hwTRk/3/9C2j6XliJbcXI" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-ovYZ8rVlBQfu08ryQf+RU7/XkcI9Xf5ueRo1y2F2xGvRf6Ezda7gDZI3nV7pVs9X" crossorigin="anonymous">
+    <link rel="icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
   </head>
   <body>
     
@@ -29,17 +30,8 @@
           <!-- 注销键，待优化还没添加功能 -->
           <button id="logout-button" class="action-button"><i class="fas fa-sign-out-alt"></i>注销</button>
         </div>
-      </nav>
 
-<hr>
-        
-        
-
-
-      <!-- 一个文件显示样式 -->
-      <main>
-        <!-- //上半部分 -->
-        <div> </div>
+        <!-- 标题下部分 -->
         <div class="button-container">
           <div style="width: 50px;"></div>
         
@@ -73,6 +65,16 @@
             </select>
           </div>
         </div>
+      </nav>
+
+<hr>
+        
+        
+
+
+      <!-- 一个文件显示样式 -->
+      <main>
+        <!-- //上半部分 -->
 
         <section id="file-list" class="content-section">
           
@@ -156,6 +158,8 @@
     </footer>
 
     <script src="../static/js/upload.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- <div id="copy-message" style="display: none;"></div>？ -->
 
   </body>

@@ -4,16 +4,14 @@
     <meta charset="UTF-8" />
     <title>My Cloud Storage</title>
     <link rel="stylesheet" href="../static/css/search.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/1L_dstPt3WjK4/8/1hwTRk/3/9C2j6XliJbcXI" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-ovYZ8rVlBQfu08ryQf+RU7/XkcI9Xf5ueRo1y2F2xGvRf6Ezda7gDZI3nV7pVs9X" crossorigin="anonymous">
     <link rel="icon" href="../static/img/favicon.ico">
   </head>
   <body>
     <div id="navbar">
       <div class="nav-container">
-        <a href="#" class="nav-button"><i class="fas fa-cloud-upload-alt"></i>我已上传</a>
+        <a href="../html/upload.html" class="nav-button" id="uploadButton"><i class="fas fa-cloud-upload-alt"></i>我已上传</a>
         <a href="#" class="nav-button"><i class="fas fa-star"></i>我的收藏</a>
         <a href="#" class="nav-button"><i class="fas fa-user"></i>用户信息</a>
         <a href="#" class="nav-button"><i class="fas fa-trash"></i>回收站</a>
@@ -22,18 +20,96 @@
     
     
 
-    <hr class="custom-line"> 
-
-    <div class="wrapper">
-      
-      <h1>My Cloud Storage</h1>
-        <img src="../static/img/1.svg" alt="" class="side-image">
-      <div class="search-box">
+<!-- 主体部分 -->
+    <div class="wrapper"> 
+      <div class="search-image">
+        <h1>My Cloud Storage</h1>
+        <div class="image-container">
+          <img src="../static/img/1.svg" alt="" class="side-image">
+        </div>
         
-        <input type="text" class="search-input" placeholder="搜索可授权文件">
-        <button class="search-button"><i class="fa fa-search"></i></button>
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="搜索可授权文件">
+          <button class="search-button"><i class="fa fa-search"></i></button>
+        
+        </div>
+        
       </div>
 
+
+      <main>
+        <!-- 用来存放搜索结果的区域,搜索结果可以直接填充在这个位置 -->
+        <section id="search-result" class="content-section">
+          
+
+          <ul id="files" class="file-list">
+
+            <li class="file-item">
+              <div class="file-icon">
+                <i class="fas fa-file-word"></i>
+              </div>
+              <div class="file-info">
+                <span class="file-link">Document 1.docx</span>
+              </div>
+
+              <!-- 分享按钮和收藏按钮待优化，收藏可以摆设，分享看一眼就行也可以是摆设 -->
+              <button id="new-btn" class="authorize file-action"><i class="fas fa-user-shield"></i></button>
+              <button id='new-btn' class="delete file-action"><i class="fas fa-trash-alt"></i></button>
+              <button id='new-btn' class="download file-action"><i class="fas fa-download"></i></button>
+              <button id='new-btn' class="share file-action"><i class="fas fa-share"></i></button>
+            </li>
+
+            <li class="file-item">
+              <div class="file-icon">
+                <i class="fas fa-file-image"></i>
+              </div>
+              <div class="file-info">
+                <span class="file-link">Image 1.jpg</span>
+
+              </div>
+              <button id="new-btn" class="authorize file-action"><i class="fas fa-user-shield"></i></button>
+              <button id='new-btn' class="delete file-action"><i class="fas fa-trash-alt"></i></button>
+              <button id='new-btn' class="download file-action"><i class="fas fa-download"></i></button>
+              <button id='new-btn' class="share file-action"><i class="fas fa-share"></i></button>
+              </li>
+              
+            </li>
+            <li class="file-item">
+              <div class="file-icon">
+                <i class="fas fa-file-audio"></i>
+              </div>
+              <div class="file-info">
+                <span class="file-link">Music 1.mp3</span>
+
+
+              </div>
+              <button id="new-btn" class="authorize file-action"><i class="fas fa-user-shield"></i></button>
+              <button id='new-btn' class="delete file-action"><i class="fas fa-trash-alt"></i></button>
+              <button id='new-btn' class="download file-action"><i class="fas fa-download"></i></button>
+              <button id='new-btn' class="share file-action"><i class="fas fa-share"></i></button>
+            </li>
+
+
+            <li class="file-item">
+              <div class="file-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="file-info">
+                <span class="file-link">sgjw.md</span>
+
+
+              </div>
+              <button id="new-btn" class="authorize file-action"><i class="fas fa-user-shield"></i></button>
+              <button id='new-btn' class="delete file-action"><i class="fas fa-trash-alt"></i></button>
+              <button id='new-btn' class="download file-action"><i class="fas fa-download"></i></button>
+              <button id='new-btn' class="share file-action"><i class="fas fa-share"></i></button>
+            </li>
+
+          </ul>
+          
+        </section>
+
+      </main>
     </div>
     
     <!-- <div class="spinner" id="spinner" style="display: none;"></div> -->
@@ -47,6 +123,8 @@
     </footer>
 
     <script src="../static/js/search.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
 
   </body>
 </html>
