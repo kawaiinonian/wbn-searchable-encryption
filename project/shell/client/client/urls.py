@@ -24,5 +24,6 @@ urlpatterns = [
     path('', views.register_login),
     path('register_login/', views.register_login),
     path('search/', views.search),
-    
+    path('search_result/', views.search_result),
+    path('upload/', views.upload),
 ]

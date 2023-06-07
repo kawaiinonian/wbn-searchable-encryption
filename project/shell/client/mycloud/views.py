@@ -20,6 +20,27 @@ cusr = c_user('se/libclient.so')
 
 # Create your views here.
 
+
+@login_required
+@csrf_exempt
+def upload(request):
+    response = {}
+    # documents = models.Documents.objects.filter(user=request.user)
+    # response["documents"] = [d.doc for d in documents]
+    response["documents"] = ['1.txt', '2.md', '3.pdf']
+    return render(request, "upload.html", response)
+
+
+@login_required
+@csrf_exempt
+def search_result(request):
+    response = {}
+    # documents = models.Documents.objects.filter(user=request.user)
+    # response["documents"] = [d.doc for d in documents]
+    response["documents"] = ['1.txt', '2.md', '3.pdf']
+    return render(request, "search_result.html", response)
+
+
 @login_required
 @csrf_exempt
 def search(request):
@@ -69,7 +90,9 @@ def search(request):
         res = pickle.loads(res_data)
 
         for ywd in res:
-            
+            pass
+    
+    return render(request, "search.html", response)
 
 
 @login_required
@@ -91,6 +114,8 @@ def add(request):
         file = []
         for k, v in documents.items():
             file.append(get_fd(v, bytes(username).ljust(LAMBDA) + bytes(k).ljust(LAMBDA)))
+            doc = models.Documents.objects.create(user=user, doc=v)
+            doc.save()
         xset, num = cusr.updateData_generate(sk, file)
         xset = {bytes(x.xwd): bytes(x.ywd) for x in xset}
 

@@ -33,3 +33,9 @@ class DocKey(models.Model):
 class Aid(models.Model):
     user = models.OneToOneField(to=User, on_delete=models.CASCADE, primary_key=True)
     aid = models.BinaryField()
+
+class Documents(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    doc = models.CharField(max_length=45)
+    class Meta:
+        unique_together = (("user", "doc"),)
