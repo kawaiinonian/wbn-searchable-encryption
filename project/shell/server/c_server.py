@@ -35,11 +35,11 @@ class c_server:
         Aset: Dict[bytes, Aset_item], Xset: Dict[bytes, bytes]):
 
         ret = []
-        for t in token:
+        for i, t in enumerate(token):
             x = self.power(t[1], Uset[t[0]])
             if aid is not None:
                 x = self.power(x, Aset[aid].alpha)
             if x in Xset.keys():
-                ret.append(Xset[x])
+                ret.append((i, Xset[x]))
 
         return ret
