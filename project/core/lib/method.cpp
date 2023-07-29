@@ -52,3 +52,9 @@ int get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
     }
     return ret;
 }
+
+int dec_ywd(uint8_t *k, uint8_t *ywd, uint8_t *result) {
+
+
+    return;
+}

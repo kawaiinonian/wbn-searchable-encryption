@@ -71,3 +71,6 @@ class c_user:
     def gen_key(self):
         return get_random_key(LAMBDA)
     
+    def dec_ywd(self, kdenc: bytes, ywd: bytes):
+        pass
+    

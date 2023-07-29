@@ -12,6 +12,7 @@ void G(uint8_t *key, uint8_t* msg, uint8_t *result);
 
 void get_xwd(const fp_t kd, const fp_t kd_inv, uint8_t *d, uint8_t *w, fp_t result);
 int get_ywd(uint8_t *k, uint8_t *d, uint8_t *result);
+int dec_ywd(uint8_t *k, uint8_t *ywd, uint8_t *result);
 
 extern "C" {
     void setting_init(void);
