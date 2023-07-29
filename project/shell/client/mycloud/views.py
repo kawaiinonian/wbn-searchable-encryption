@@ -89,7 +89,7 @@ def search(request):
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
 
-        for ywd in res:
+        for (i, ywd) in res['data']:
             pass
     
     return render(request, "search.html", response)
