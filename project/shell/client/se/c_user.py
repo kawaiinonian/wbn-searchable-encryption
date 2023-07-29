@@ -71,6 +71,17 @@ class c_user:
     def gen_key(self):
         return get_random_key(LAMBDA)
     
-    def dec_ywd(self, kdenc: bytes, ywd: bytes):
-        pass
+    def dec_ywd(self, kdenc: bytes, ywd: bytes) -> bytes:
+        kdtype = c_ubyte * len(kdenc)
+        kd_input = kdtype()
+        memmove(kd_input, kdenc, len(kdenc))
+
+        ywdtype = c_ubyte * len(ywd)
+        ywd_input = ywdtype()
+        memmove(ywd_input, ywd, len(ywd))
+
+        result_type = c_ubyte * PATH_LEN
+        result = result_type()
+        self.lib.dec_ywd(kd_input, ywd_input, result)
+        return bytes(result)
     
