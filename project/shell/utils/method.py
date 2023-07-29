@@ -4,17 +4,19 @@ from .datatype import *
 import secrets
 
 def get_fd(words: List[bytes], path: bytes):
-    if len(words) > MAX_WORD:
-        raise IndexError
+
+    # if len(words) > MAX_WORD:
+    #     raise IndexError
     _words = []
     for word in words:
         new_word = type_word()
         memmove(new_word, word, len(word))
-        _words.append(new_word)
-    c_words = type_words(*_words)
+        _words.append(cast(new_word, p))
+    c_words = (p*len(words))(*_words)
+    p_c_words = cast(c_words, pp)
     c_path = type_path()
     memmove(c_path, path, len(path))
-    fd = FILE_WITH_WORDS(c_words, len(words), c_path)
+    fd = FILE_WITH_WORDS(p_c_words, len(words), c_path)
     return fd
 
 def get_doc(ds):
@@ -31,6 +33,13 @@ def get_key_from_bytes(data: bytes):
     if len(data) > LAMBDA:
         raise IndexError
     ret = type_key()
+    memmove(ret, data, len(data))
+    return ret
+
+def get_element_from_bytes(data: bytes):
+    if len(data) > LAMBDA+1:
+        raise IndexError
+    ret = type_element()
     memmove(ret, data, len(data))
     return ret
 

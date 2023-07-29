@@ -5,7 +5,9 @@ test.cpp
 test
 test.py
 test.so
-.gitignore
+*.log
+enron_washed.json
+enron10w_washed.json
 project/shell/server/__pycache__/
 project/shell/client/__pycache__/
 project/shell/utils/__pycache__/

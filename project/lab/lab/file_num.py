@@ -33,8 +33,8 @@ def load_data_as_bytes(file_name):
 path = os.getcwd() + "/project/lab/data/enron10w_washed.json"
 libclient = os.getcwd() + "/project/core/libclient.so"
 usr1 = b"helloworld".ljust(LAMBDA)
-num = [500, 1000, 3000, 5000, 10000, 20000, 30000, 50000]
-# num = [500, 1000, 3000]
+# num = [500, 1000, 3000, 5000, 10000, 20000, 30000, 50000]
+num = [500, 1000, 3000]
 sk = SEARCH_KEY(
     get_key_from_bytes(get_random_key(LAMBDA)),
     get_key_from_bytes(get_random_key(LAMBDA)),
