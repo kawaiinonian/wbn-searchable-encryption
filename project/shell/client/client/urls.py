@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+from django.contrib.auth import urls
 from django.contrib import admin
 from django.urls import path
 from mycloud import views
@@ -24,6 +26,8 @@ urlpatterns = [
     path('', views.register_login),
     path('register_login/', views.register_login),
     path('search/', views.search),
-    path('search_result/', views.search_result),
     path('upload/', views.upload),
+    path('add/', views.add),
+    path('get_usernames/', views.get_usernames),
+    path('online_auth/', views.online_auth),
 ]

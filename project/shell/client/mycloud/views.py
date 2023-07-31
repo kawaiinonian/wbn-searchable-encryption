@@ -1,5 +1,6 @@
 import socket
 import pickle
+import json
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -25,9 +26,10 @@ cusr = c_user('se/libclient.so')
 @csrf_exempt
 def upload(request):
     response = {}
-    # documents = models.Documents.objects.filter(user=request.user)
-    # response["documents"] = [d.doc for d in documents]
-    response["documents"] = ['1.txt', '2.md', '3.pdf']
+    documents = models.Documents.objects.filter(user=request.user)
+    response["documents"] = [d.doc for d in documents]
+    response["documents"].append("test")
+    response['username'] = request.user.username
     return render(request, "upload.html", response)
 
 
@@ -39,6 +41,17 @@ def search_result(request):
     # response["documents"] = [d.doc for d in documents]
     response["documents"] = ['1.txt', '2.md', '3.pdf']
     return render(request, "search_result.html", response)
+
+
+@login_required
+@csrf_exempt
+def get_usernames(request):
+    response = {}
+    if request.method == 'GET':
+        users = User.objects.all()
+        usernames = [u.username for u in users]
+        response['usernames'] = usernames
+        return JsonResponse(response)
 
 
 @login_required
@@ -83,6 +96,7 @@ def search(request):
 
         data = {'token': token, 'aid': aid}
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
         message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
@@ -110,21 +124,37 @@ def add(request):
             get_key_from_bytes(skey.sk3)
         )
         documents = request.POST.get('documents')
-        
+        documents = json.loads(documents)
+
+        print(documents)
+
         file = []
         for k, v in documents.items():
-            file.append(get_fd(v, bytes(username).ljust(LAMBDA) + bytes(k).ljust(LAMBDA)))
-            doc = models.Documents.objects.create(user=user, doc=v)
+            vv = []
+            for w in v:
+                if w is not '':
+                    vv.append(bytes(w.encode()))
+            file.append(get_fd(vv, bytes(username.encode()).ljust(LAMBDA) + bytes(k.encode()).ljust(LAMBDA)))
+            doc = models.Documents.objects.create(user=user, doc=k)
             doc.save()
+        
+        print(sk)
+        print(file)
+
         xset, num = cusr.updateData_generate(sk, file)
         xset = {bytes(x.xwd): bytes(x.ywd) for x in xset}
 
+        print(xset)
+
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
         message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': xset}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
+
+        print(res)
 
         response['error'] = '1'
         if res['data'] == 'SUCCESS':
@@ -148,6 +178,9 @@ def online_auth(request):
         user = request.user
         username = user.username
         documents = request.POST.get('documents')
+
+        print(username)
+        print(documents)
         
         skey = models.SKey.objects.get(user=user)
         sk = SEARCH_KEY(
@@ -161,9 +194,13 @@ def online_auth(request):
             get_key_from_bytes(ukey.uk2)
         )
 
-        doc = [bytes(username).ljust(LAMBDA) + d.ljust(LAMBDA) for d in documents]
+        # doc = [bytes(username).ljust(LAMBDA) + bytes(d).ljust(LAMBDA) for d in documents]
+        doc = [bytes(username.encode()).ljust(LAMBDA) + bytes(documents.encode()).ljust(LAMBDA)]
         dockey, uset = cusr.online_auth(sk, uk, doc)
         uset = {bytes(u.uid): bytes(u.ud) for u in uset}
+
+        print(dockey)
+        print(uset)
         
         for key in dockey:
             dk = models.DocKey.objects.create(
@@ -175,6 +212,7 @@ def online_auth(request):
             dk.save()
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
         message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': uset}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
@@ -257,6 +295,7 @@ def offline_auth(request):
 
         data = {'aid': bytes(aset.aid), 'alpha': bytes(aset.trapgate), 'aidA': aida}
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
         message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)

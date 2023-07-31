@@ -3,13 +3,14 @@ import threading
 import pickle
 import signal
 
-import sys
 import os
-sys.path.append(os.getcwd() + "/project/shell/")
 
-from server.consts import *
-from server.c_server import *
+# from consts import *
+from c_server import *
 
+XSETS = {}
+USETS = {}
+ASETS = {}
 
 def save_pkl(path, data):
     with open(path, 'wb') as f:
@@ -39,6 +40,10 @@ def send_all(client_socket: socket, data: bytes):
         data = data[bytes_sent:]
 
 def handle_client(client_socket):
+    global XSETS
+    global USETS
+    global ASETS
+
     while True:
         try:
             data = recv_all(client_socket)
@@ -51,9 +56,10 @@ def handle_client(client_socket):
             if message['function'] == 'ADD':
                 tmp = message['data']
                 try:
-                    if user_id not in XSETS.keys():
-                        XSETS[user_id] = {}
-                    XSETS[user_id] |= tmp
+                    # if user_id not in XSETS.keys():
+                    #     XSETS[user_id] = {}
+                    # XSETS[user_id] |= tmp
+                    XSETS |= tmp
                     print(XSETS)
                     re = 'SUCCESS'
                 except Exception as e:
@@ -64,9 +70,11 @@ def handle_client(client_socket):
             elif message['function'] == 'ONLINE':
                 tmp = message['data']
                 try:
-                    if user_id not in USETS.keys():
-                        USETS[user_id] = {}
-                    USETS[user_id] |= tmp
+                    # if user_id not in USETS.keys():
+                    #     USETS[user_id] = {}
+                    # USETS[user_id] |= tmp
+                    USETS |= tmp
+                    print(USETS)
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -76,9 +84,11 @@ def handle_client(client_socket):
             elif message['function'] == 'OFFLINE':
                 tmp = message['data']
                 try:
-                    if user_id not in ASETS.keys():
-                        ASETS[user_id] = {}
-                    c_svr.Aset_update(ASETS[user_id], tmp['aid'], tmp['alpha'], tmp['aidA'])
+                    # if user_id not in ASETS.keys():
+                    #     ASETS[user_id] = {}
+                    # c_svr.Aset_update(ASETS[user_id], tmp['aid'], tmp['alpha'], tmp['aidA'])
+                    c_svr.Aset_update(ASETS, tmp['aid'], tmp['alpha'], tmp['aidA'])
+                    print(ASETS)
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -90,7 +100,8 @@ def handle_client(client_socket):
                 try:
                     token = tmp['token']
                     aid = tmp['aid']
-                    re = c_svr.search(token, aid, USETS[user_id], ASETS[user_id], XSETS[user_id])
+                    # re = c_svr.search(token, aid, USETS[user_id], ASETS[user_id], XSETS[user_id])
+                    re = c_svr.search(token, aid, USETS, ASETS, XSETS)
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'SEARCH', 'data': re}
@@ -117,6 +128,10 @@ def handle_client(client_socket):
             break
 
 def handle_quit(signum, frame):
+    global XSETS
+    global USETS
+    global ASETS
+
     try:
         print("Quiting......")
         while True:
@@ -132,7 +147,8 @@ def handle_quit(signum, frame):
         print(f"Error: {e}")
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
+
     server = "wbn"
     host = "127.0.0.1"
     port = 12345
@@ -140,9 +156,9 @@ if __name__ == "__main__":
     libserver = "/home/secreu/wbn-searchable-encryption/project/core/libserver.so"
     c_svr = c_server(libserver)
 
-    xPath = "project/shell/server/sets/xsets.pkl"
-    uPath = "project/shell/server/sets/usets.pkl"
-    aPath = "project/shell/server/sets/asets.pkl"
+    xPath = "sets/xsets.pkl"
+    uPath = "sets/usets.pkl"
+    aPath = "sets/asets.pkl"
 
     if os.path.exists(xPath):
         XSETS = read_pkl(xPath)
@@ -159,8 +175,6 @@ if __name__ == "__main__":
     clients = []
 
     signal.signal(signal.SIGINT, handle_quit)
-
-    print(XSETS)
 
     while True:
         client_socket, client_address = server_socket.accept()
