@@ -84,7 +84,7 @@ searchImage.addEventListener('click', function() {
   }).then((result) => {
     // 如果用户点击了“确认”按钮
     if (result.isConfirmed) {
-      window.location.href = '../html/upload.html';
+      window.location.href = '../upload';
     }
   })
 });
