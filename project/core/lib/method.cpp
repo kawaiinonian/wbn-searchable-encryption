@@ -59,5 +59,5 @@ int dec_ywd(uint8_t *k, uint8_t *ywd, uint8_t *result) {
     if (ret == RLC_ERR) {
         printf("failed to aes decrypt");
     }
-    return;
+    return ret;
 }
