@@ -307,14 +307,6 @@ newBtn.addEventListener('click', () => {
         shareBtn.appendChild(shareIcon);
         newFolder.appendChild(shareBtn);
 
-        // const favoriteBtn = document.createElement('button');
-        // favoriteBtn.className = 'favorrite file-action';
-        // favoriteBtn.id = 'new-btn';
-        // const favoriteIcon = document.createElement('i');
-        // favoriteIcon.className = 'fas fa-star';
-        // favoriteBtn.appendChild(favoriteIcon);
-        // newFolder.appendChild(favoriteBtn);
-
         //上传文件后要求用户输入对应的关键词
         Swal.fire({
           title: '<span class="swal2-title">Please Enter the <span class="keyword">KeyWord</span></span>',

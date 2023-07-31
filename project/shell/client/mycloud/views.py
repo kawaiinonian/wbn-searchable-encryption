@@ -63,11 +63,14 @@ def search(request):
         word = request.POST.get('word')
         if not word:
             return JsonResponse({'msg': '请提供检索的关键词', 'error': '1'})
-        word = get_word_from_bytes(bytes(word))
+        
+        print(word)
+
+        word = get_word_from_bytes(bytes(word.encode()))
         user = request.user
         username = user.username
-        ukey = models.SKey.objects.get(user=user)
-        uk = SEARCH_KEY(
+        ukey = models.UKey.objects.get(user=user)
+        uk = USER_KEY(
             get_key_from_bytes(ukey.uk1),
             get_key_from_bytes(ukey.uk2)
         )
@@ -80,21 +83,25 @@ def search(request):
                     get_key_from_bytes(o.uid),
                     get_element_from_bytes(o.offtok)
                 ) for o in userauth]
-        dockey = models.DocKey.objects.filter(user=user)
+        dk = models.DocKey.objects.filter(user=user)
         dockey = [DOC_KEY(
                 get_d_from_bytes(d.d), 
                 get_key_from_bytes(d.kdenc), 
                 get_key_from_bytes(d.kd)
-            ) for d in dockey]
+            ) for d in dk]
         
         ret_token = cusr.search_generate(word, uk, dockey, userauth)
         token = [(bytes(t.uid), bytes(t.stk)) for t in ret_token]
         
-        user_aid = models.Aid.objects.get(user=user)
-        if user_aid is None:
+        try:
+            user_aid = models.Aid.objects.get(user=user)
+        except:
             aid = None
 
         data = {'token': token, 'aid': aid}
+
+        print(data)
+
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
         message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
@@ -103,8 +110,24 @@ def search(request):
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
 
+        print(res['data'])
+
+        documents = []
         for (i, ywd) in res['data']:
-            pass
+            kdenc = dk[i].kdenc
+            d = cusr.dec_ywd(kdenc, ywd)
+            d = d.decode()
+            documents.append(d)
+
+        print(documents)
+        
+        response['documents'] = documents
+        response['error'] = '1'
+        if res['data'] == 'SUCCESS':
+            response['error'] = '0'
+        response['msg'] = res['data']
+
+        return JsonResponse(response)
     
     return render(request, "search.html", response)
 
@@ -132,7 +155,7 @@ def add(request):
         for k, v in documents.items():
             vv = []
             for w in v:
-                if w is not '':
+                if w != '':
                     vv.append(bytes(w.encode()))
             file.append(get_fd(vv, bytes(username.encode()).ljust(LAMBDA) + bytes(k.encode()).ljust(LAMBDA)))
             doc = models.Documents.objects.create(user=user, doc=k)
