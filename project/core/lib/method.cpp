@@ -50,7 +50,7 @@ int get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
 
     size_t outlen = PATH_LEN;
     uint8_t asd[PATH_LEN + 16];
-    ret = bc_aes_cbc_dec(asd, &outlen, result, PATH_LEN, k, LAMBDA, IV);
+    ret = bc_aes_cbc_dec(asd, &outlen, result, PATH_LEN + 16, k, LAMBDA, IV);
 
     printf("d: %s\n", (char *)(d));
     printf("result: %s\n", (char *)(result));
