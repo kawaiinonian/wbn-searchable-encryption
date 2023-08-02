@@ -3,7 +3,6 @@
 // 实现文件按钮的所有功能,以实现授权、删除,下载，后续调用
 function FileButtonFunctions() {
 
-  //删除按钮,点击后弹出是否确认删除
   const authorizeButtons = document.querySelectorAll(".authorize");
 
   authorizeButtons.forEach(button => {
@@ -22,7 +21,7 @@ function FileButtonFunctions() {
         usernames.forEach((username, index) => {
           inputOptions[index] = username;
         });
-      
+
         Swal.fire({
           title: 'Choose a user to authorize:',
           input: 'select',
@@ -90,14 +89,35 @@ function FileButtonFunctions() {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          fileItem.parentNode.removeChild(fileItem);
-          Swal.fire(
-            'Deleted!',
-            'Your file has been deleted.',
-            'success'
-          )
+          const filename = fileItem.querySelector(".file-link").textContent;
+
+          // 向后端发送选中的用户名和文件名
+          const formData = new FormData();
+          formData.append('documents', filename);
+
+          const response = await fetch('/delete/', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (data.error == '0') {
+            fileItem.parentNode.removeChild(fileItem);
+            Swal.fire(
+              'Deleted!',
+              'Your file has been deleted.',
+              'success'
+            )
+          } else {
+            Swal.fire(
+              'Delete Failed!',
+              'Fail to delete this file.',
+              'error'
+            )
+          }
         }
       })
     });

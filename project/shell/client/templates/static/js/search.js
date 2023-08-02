@@ -49,7 +49,6 @@ searchImage.addEventListener('click', function () {
 // 实现文件按钮的所有功能,以实现授权、删除,下载，后续调用
 function FileButtonFunctions() {
 
-  //删除按钮,点击后弹出是否确认删除
   const authorizeButtons = document.querySelectorAll(".authorize");
 
   authorizeButtons.forEach(button => {
@@ -91,7 +90,7 @@ function FileButtonFunctions() {
               formData.append('username', selectedUsername);
               formData.append('documents', filename);
 
-              const response = await fetch('/online_auth/', {
+              const response = await fetch('/offline_auth/', {
                 method: 'POST',
                 body: formData,
               });
@@ -120,34 +119,34 @@ function FileButtonFunctions() {
     });
   });
 
-  //删除按钮,点击后弹出是否确认删除
-  const deleteButtons = document.querySelectorAll(".delete");
+  // //删除按钮,点击后弹出是否确认删除
+  // const deleteButtons = document.querySelectorAll(".delete");
 
-  deleteButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      // 获取该文件元素
-      const fileItem = button.closest(".file-item");
+  // deleteButtons.forEach(button => {
+  //   button.addEventListener("click", () => {
+  //     // 获取该文件元素
+  //     const fileItem = button.closest(".file-item");
 
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fileItem.parentNode.removeChild(fileItem);
-          Swal.fire(
-            'Deleted!',
-            'Your file has been deleted.',
-            'success'
-          )
-        }
-      })
-    });
-  });
+  //     Swal.fire({
+  //       title: 'Are you sure?',
+  //       text: "You won't be able to revert this!",
+  //       icon: 'warning',
+  //       showCancelButton: true,
+  //       confirmButtonColor: '#3085d6',
+  //       cancelButtonColor: '#d33',
+  //       confirmButtonText: 'Yes, delete it!'
+  //     }).then((result) => {
+  //       if (result.isConfirmed) {
+  //         fileItem.parentNode.removeChild(fileItem);
+  //         Swal.fire(
+  //           'Deleted!',
+  //           'Your file has been deleted.',
+  //           'success'
+  //         )
+  //       }
+  //     })
+  //   });
+  // });
 
   // 获取所有下载按钮
   const downloadButtons = document.querySelectorAll(".download");
@@ -341,13 +340,13 @@ searchButton.addEventListener('click', () => {
       authBtn.appendChild(authIcon);
       newfile.appendChild(authBtn);
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'delete file-action';
-      deleteBtn.id = 'new-btn'; // 设置按钮的id
-      const deleteIcon = document.createElement('i');
-      deleteIcon.className = 'fas fa-trash-alt';
-      deleteBtn.appendChild(deleteIcon);
-      newfile.appendChild(deleteBtn);
+      // const deleteBtn = document.createElement('button');
+      // deleteBtn.className = 'delete file-action';
+      // deleteBtn.id = 'new-btn'; // 设置按钮的id
+      // const deleteIcon = document.createElement('i');
+      // deleteIcon.className = 'fas fa-trash-alt';
+      // deleteBtn.appendChild(deleteIcon);
+      // newfile.appendChild(deleteBtn);
 
       const downloadBtn = document.createElement('button');
       downloadBtn.className = 'download file-action';

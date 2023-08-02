@@ -28,7 +28,6 @@ def upload(request):
     response = {}
     documents = models.Documents.objects.filter(user=request.user)
     response["documents"] = [d.doc for d in documents]
-    response["documents"].append("test")
     response['username'] = request.user.username
     return render(request, "upload.html", response)
 
@@ -42,6 +41,54 @@ def search_result(request):
     response["documents"] = ['1.txt', '2.md', '3.pdf']
     return render(request, "search_result.html", response)
 
+
+@login_required
+@csrf_exempt
+def delete(request):
+    response = {}
+    if request.method == 'POST':
+        fun = 'DELETE'
+        user = request.user
+        username = user.username
+        skey = models.SKey.objects.get(user=user)
+        sk = SEARCH_KEY(
+            get_key_from_bytes(skey.sk1), 
+            get_key_from_bytes(skey.sk2), 
+            get_key_from_bytes(skey.sk3)
+        )
+        documents = request.POST.get('documents')
+
+        print(documents)
+
+        vv = [b'0']
+        file = [get_fd(vv, bytes(username.encode()).ljust(LAMBDA) + bytes(documents.encode()).ljust(LAMBDA))]
+
+        print(sk)
+        print(file)
+
+        xset, num = cusr.updateData_generate(sk, file)
+        xset = {bytes(x.xwd): bytes(x.ywd) for x in xset}
+
+        print(xset)
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': xset}
+        serialized_data = pickle.dumps(message)
+        send_all(client_socket, serialized_data)
+        res_data = recv_all(client_socket)
+        res = pickle.loads(res_data)
+
+        print(res)
+
+        response['error'] = '1'
+        if res['data'] == 'SUCCESS':
+            doc = models.Documents.objects.get(user=user, doc=documents)
+            doc.delete()
+            response['error'] = '0'
+        response['msg'] = res['data']
+
+        return JsonResponse(response)
 
 @login_required
 @csrf_exempt
@@ -269,7 +316,8 @@ def offline_auth(request):
         aida = user_aid.aid
         username = user.username
         documents = request.POST.get('documents')
-        doc = [bytes(username).ljust(LAMBDA) + d.ljust(LAMBDA) for d in documents]
+        # doc = [bytes(username).ljust(LAMBDA) + d.ljust(LAMBDA) for d in documents]
+        doc = [bytes(username.encode()).ljust(LAMBDA) + bytes(documents.encode()).ljust(LAMBDA)]
         ub = get_key_from_bytes(bytes(tar_name))
         ukey1 = models.UKey.objects.get(user=user)
         uk1 = USER_KEY(

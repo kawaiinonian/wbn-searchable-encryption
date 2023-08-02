@@ -30,4 +30,6 @@ urlpatterns = [
     path('add/', views.add),
     path('get_usernames/', views.get_usernames),
     path('online_auth/', views.online_auth),
+    path('offline_auth/', views.offline_auth),
+    path('delete/', views.delete),
 ]

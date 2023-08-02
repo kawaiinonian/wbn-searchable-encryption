@@ -66,6 +66,20 @@ def handle_client(client_socket):
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'ADD', 'data': re}
 
+            # Delete
+            if message['function'] == 'DELETE':
+                tmp = message['data']
+                try:
+                    value_to_remove = list(tmp.values())[0]
+                    removed_items = [key for key, value in XSETS.items() if value == value_to_remove]
+                    for key in removed_items:
+                        XSETS.pop(key)
+                    print(XSETS)
+                    re = 'SUCCESS'
+                except Exception as e:
+                    re = f'Error: {e}'
+                response = {'src': server, 'dst': user_id, 'function': 'ADD', 'data': re}
+
             # OnlineAuth
             elif message['function'] == 'ONLINE':
                 tmp = message['data']
