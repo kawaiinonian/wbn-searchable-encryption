@@ -48,14 +48,6 @@ int get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
     size_t size = PATH_LEN + 16;
     int ret = bc_aes_cbc_enc(result, &size, d, PATH_LEN, k, LAMBDA, IV);
 
-    size_t outlen = PATH_LEN;
-    uint8_t asd[PATH_LEN + 16];
-    ret = bc_aes_cbc_dec(asd, &outlen, result, PATH_LEN + 16, k, LAMBDA, IV);
-
-    printf("d: %s\n", (char *)(d));
-    printf("result: %s\n", (char *)(result));
-    printf("dec_result: %s\n", (char *)(asd));
-
     if (ret == RLC_ERR) {
         printf("failed to aes encrypt\n");
     }
@@ -63,7 +55,7 @@ int get_ywd(uint8_t *k, uint8_t *d, uint8_t *result) {
 }
 
 int dec_ywd(uint8_t *k, uint8_t *ywd, uint8_t *result) {
-    size_t outlen = PATH_LEN;
+    size_t outlen = PATH_LEN + 32;
     int ret = bc_aes_cbc_dec(result, &outlen, ywd, PATH_LEN + 16, k, LAMBDA, IV);
 
     printf("ywd: %s\n", (char *)(ywd));
