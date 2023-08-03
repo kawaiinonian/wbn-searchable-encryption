@@ -36,10 +36,15 @@ class c_server:
 
         ret = []
         for i, t in enumerate(token):
+            print(token)
+            print(Uset)
             x = self.power(t[1], Uset[t[0]])
+            print(x)
             if aid is not None:
                 x = self.power(x, Aset[aid].alpha)
+                print(x)
             if x in Xset.keys():
                 ret.append((i, Xset[x]))
+                print(x)
 
         return ret

@@ -136,12 +136,13 @@ def search(request):
                 get_key_from_bytes(d.kdenc), 
                 get_key_from_bytes(d.kd)
             ) for d in dk]
-        
+
         ret_token = cusr.search_generate(word, uk, dockey, userauth)
         token = [(bytes(t.uid), bytes(t.stk)) for t in ret_token]
         
         try:
             user_aid = models.Aid.objects.get(user=user)
+            aid = user_aid.aid
         except:
             aid = None
 
@@ -169,10 +170,12 @@ def search(request):
         print(documents)
         
         response['documents'] = documents
-        response['error'] = '1'
-        if res['data'] == 'SUCCESS':
-            response['error'] = '0'
-        response['msg'] = res['data']
+        response['error'] = '0'
+        if res['data'][:5] == 'Error':
+            response['error'] = '1'
+            response['msg'] = res['data']
+
+        print(response)
 
         return JsonResponse(response)
     
@@ -310,15 +313,19 @@ def offline_auth(request):
         fun = 'OFFLINE'
         user = request.user
 
-        user_aid = models.Aid.objects.get(user=user)
-        if user_aid in None:
-            return JsonResponse({'msg': '你还未被授权其他文件，无法分发授权', 'error': '1'})
-        aida = user_aid.aid
+        try:
+            user_aid = models.Aid.objects.get(user=user)
+            aida = user_aid.aid
+        except:
+            aida = None
+
         username = user.username
         documents = request.POST.get('documents')
+        documents = documents.split( )
         # doc = [bytes(username).ljust(LAMBDA) + d.ljust(LAMBDA) for d in documents]
-        doc = [bytes(username.encode()).ljust(LAMBDA) + bytes(documents.encode()).ljust(LAMBDA)]
-        ub = get_key_from_bytes(bytes(tar_name))
+        doc = [bytes(documents[0].encode()).ljust(LAMBDA) + bytes(documents[1].encode()).ljust(LAMBDA)]
+        print(doc)
+        ub = get_key_from_bytes(bytes(tar_name.encode()))
         ukey1 = models.UKey.objects.get(user=user)
         uk1 = USER_KEY(
             get_key_from_bytes(ukey1.uk1),
@@ -347,6 +354,10 @@ def offline_auth(request):
 
         aset, ret_auth, ret_key = cusr.offline_auth(uk1, uk2, doc, ub, dockey, userauth)
 
+        ad = models.Aid.objects.create(
+            user = tar_user,
+            aid = bytes(aset.contents.aid)
+        )
         for key in ret_key:
             dk = models.DocKey.objects.create(
                 user = tar_user,
@@ -364,7 +375,7 @@ def offline_auth(request):
             )
             au.save()
 
-        data = {'aid': bytes(aset.aid), 'alpha': bytes(aset.trapgate), 'aidA': aida}
+        data = {'aid': bytes(aset.contents.aid), 'alpha': bytes(aset.contents.trapgate), 'aidA': aida}
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
         message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}

@@ -119,34 +119,6 @@ function FileButtonFunctions() {
     });
   });
 
-  // //删除按钮,点击后弹出是否确认删除
-  // const deleteButtons = document.querySelectorAll(".delete");
-
-  // deleteButtons.forEach(button => {
-  //   button.addEventListener("click", () => {
-  //     // 获取该文件元素
-  //     const fileItem = button.closest(".file-item");
-
-  //     Swal.fire({
-  //       title: 'Are you sure?',
-  //       text: "You won't be able to revert this!",
-  //       icon: 'warning',
-  //       showCancelButton: true,
-  //       confirmButtonColor: '#3085d6',
-  //       cancelButtonColor: '#d33',
-  //       confirmButtonText: 'Yes, delete it!'
-  //     }).then((result) => {
-  //       if (result.isConfirmed) {
-  //         fileItem.parentNode.removeChild(fileItem);
-  //         Swal.fire(
-  //           'Deleted!',
-  //           'Your file has been deleted.',
-  //           'success'
-  //         )
-  //       }
-  //     })
-  //   });
-  // });
 
   // 获取所有下载按钮
   const downloadButtons = document.querySelectorAll(".download");
@@ -254,39 +226,45 @@ function getFileType(fileName) {
 
 
 //搜索框实现功能，前面已经获取到了搜索框中的内容
-searchButton.addEventListener('click', () => {
+searchButton.addEventListener('click', async () => {
   // 获取输入框中的搜索关键词
   const searchKeyword = searchInput.value.toLowerCase().trim();
 
-  async function snedData() {
-    const formData = new FormData();
-    formData.append('word', searchKeyword);
+  const formData = new FormData();
+  formData.append('word', searchKeyword);
 
-    try {
-      // 使用 fetch API 发送数据
-      const response = await fetch('/search/', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
+  var data;
 
-      if (data['error'] == '1') {
-        // 如果服务器返回了一个错误，你可以在这里处理它
-        const message = data['msg'];
-        errorMessageElement.innerText = message;
-        return false;
-      } else {
-        return data['documents'];
-      }
-    } catch (error) {
-      console.error("error when sending data: ", error);
+  try {
+    // 使用 fetch API 发送数据
+    const response = await fetch('/search/', {
+      method: 'POST',
+      body: formData,
+    });
+    data = await response.json();
+
+    if (data['error'] == '1') {
+      // 如果服务器返回了一个错误，你可以在这里处理它
+      const message = data['msg'];
+      Swal.fire(
+        'Search Failed!',
+        data['msg'],
+        'error'
+      );
     }
+  } catch (error) {
+    console.error("error when sending data: ", error);
   }
 
-  const fileNames = snedData()
+  const fileNames = data['documents'];
 
   if (fileNames) {
     const fileListContainer = document.getElementById('files');
+
+    // 在添加新文件之前，清空fileListContainer的内容
+    while (fileListContainer.firstChild) {
+      fileListContainer.removeChild(fileListContainer.firstChild);
+    }
 
     fileNames.forEach((fileName) => {
       const newfile = document.createElement('li');
@@ -339,14 +317,6 @@ searchButton.addEventListener('click', () => {
       authIcon.className = "fas fa-user-shield";
       authBtn.appendChild(authIcon);
       newfile.appendChild(authBtn);
-
-      // const deleteBtn = document.createElement('button');
-      // deleteBtn.className = 'delete file-action';
-      // deleteBtn.id = 'new-btn'; // 设置按钮的id
-      // const deleteIcon = document.createElement('i');
-      // deleteIcon.className = 'fas fa-trash-alt';
-      // deleteBtn.appendChild(deleteIcon);
-      // newfile.appendChild(deleteBtn);
 
       const downloadBtn = document.createElement('button');
       downloadBtn.className = 'download file-action';

@@ -639,12 +639,6 @@ function sortByNameDesc(filesList) {
   });
 }
 
-
-
-
-
-
-
 // 获取输入框和搜索按钮元素
 const searchInput = document.querySelector('.search-input');
 const searchButton = document.querySelector('.search-button');
@@ -670,15 +664,23 @@ searchButton.addEventListener('click', () => {
   });
 });
 
+document.getElementById('searchButton').addEventListener('click', function (e) {
+  e.preventDefault();  // 阻止链接的默认行为
 
-
-
-
-
-
-
-
-
-
-
+  // 弹出确认对话框
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You want to navigate to another page",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, navigate!'
+  }).then((result) => {
+    // 如果用户点击了“确认”按钮
+    if (result.isConfirmed) {
+      window.location.href = '../search';
+    }
+  })
+});
 

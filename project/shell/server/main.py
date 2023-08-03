@@ -67,7 +67,7 @@ def handle_client(client_socket):
                 response = {'src': server, 'dst': user_id, 'function': 'ADD', 'data': re}
 
             # Delete
-            if message['function'] == 'DELETE':
+            elif message['function'] == 'DELETE':
                 tmp = message['data']
                 try:
                     value_to_remove = list(tmp.values())[0]
@@ -116,6 +116,7 @@ def handle_client(client_socket):
                     aid = tmp['aid']
                     # re = c_svr.search(token, aid, USETS[user_id], ASETS[user_id], XSETS[user_id])
                     re = c_svr.search(token, aid, USETS, ASETS, XSETS)
+                    print(re)
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'SEARCH', 'data': re}
