@@ -78,7 +78,21 @@ def handle_client(client_socket):
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
-                response = {'src': server, 'dst': user_id, 'function': 'ADD', 'data': re}
+                response = {'src': server, 'dst': user_id, 'function': 'DELETE', 'data': re}
+
+            # OnlineRevo
+            elif message['function'] == 'ONLINEREVO':
+                tmp = message['data']
+                try:
+                    keys_to_remove = tmp.keys()
+                    removed_items = [key for key, value in USETS.items() if key in keys_to_remove]
+                    for key in removed_items:
+                        USETS.pop(key)
+                    print(USETS)
+                    re = 'SUCCESS'
+                except Exception as e:
+                    re = f'Error: {e}'
+                response = {'src': server, 'dst': user_id, 'function': 'ONLINEREVO', 'data': re}
 
             # OnlineAuth
             elif message['function'] == 'ONLINE':

@@ -39,3 +39,9 @@ class Documents(models.Model):
     doc = models.CharField(max_length=45)
     class Meta:
         unique_together = (("user", "doc"),)
+
+class Auth(models.Model):
+    userA = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='userA_auth_set')
+    userB = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='userB_auth_set')
+    authtype = models.BooleanField(default=False)
+    doc = models.CharField(max_length=45)

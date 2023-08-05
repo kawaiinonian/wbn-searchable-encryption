@@ -34,16 +34,6 @@ def upload(request):
 
 @login_required
 @csrf_exempt
-def search_result(request):
-    response = {}
-    # documents = models.Documents.objects.filter(user=request.user)
-    # response["documents"] = [d.doc for d in documents]
-    response["documents"] = ['1.txt', '2.md', '3.pdf']
-    return render(request, "search_result.html", response)
-
-
-@login_required
-@csrf_exempt
 def delete(request):
     response = {}
     if request.method == 'POST':
@@ -78,6 +68,7 @@ def delete(request):
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
+        client_socket.close()
 
         print(res)
 
@@ -157,6 +148,7 @@ def search(request):
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
+        client_socket.close()
 
         print(res['data'])
 
@@ -226,6 +218,7 @@ def add(request):
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
+        client_socket.close()
 
         print(res)
 
@@ -235,6 +228,85 @@ def add(request):
         response['msg'] = res['data']
 
         return JsonResponse(response)
+
+
+@login_required
+@csrf_exempt
+def online_revo(request):
+    response = {}
+    if request.method == 'GET':
+        user = request.user
+        ats = models.Auth.objects.filter(userA=user, authtype=0)
+        usernames = []
+        for a in ats:
+            ubn = a.userB.username
+            if ubn not in usernames:
+                usernames.append(ubn)
+        response['usernames'] = usernames
+        print(usernames)
+        return JsonResponse(response)
+    
+    elif request.method == 'POST':
+        tar_name = request.POST.get('username')
+        tar_user = User.objects.get(username=tar_name)
+        if tar_user is None:
+            return JsonResponse({'msg': '目标用户不存在', 'error': '1'})
+
+        fun = 'ONLINEREVO'
+        user = request.user
+        username = user.username
+
+        ats = models.Auth.objects.filter(userA=user, userB=tar_user, authtype=0)
+        documents = []
+        for a in ats:
+            dd = a.doc
+            if dd not in documents:
+                documents.append(dd)
+            a.delete()
+
+        print(username)
+        print(documents)
+        
+        skey = models.SKey.objects.get(user=user)
+        sk = SEARCH_KEY(
+            get_key_from_bytes(skey.sk1),
+            get_key_from_bytes(skey.sk2),
+            get_key_from_bytes(skey.sk3)
+        )
+        ukey = models.UKey.objects.get(user=tar_user)
+        uk = USER_KEY(
+            get_key_from_bytes(ukey.uk1),
+            get_key_from_bytes(ukey.uk2)
+        )
+
+        doc = [bytes(username.encode()).ljust(LAMBDA) + bytes(d.encode()).ljust(LAMBDA) for d in documents]
+        dockey, uset = cusr.online_auth(sk, uk, doc)
+        uset = {bytes(u.uid): bytes(u.ud) for u in uset}
+
+        print(dockey)
+        print(uset)
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': uset}
+        serialized_data = pickle.dumps(message)
+        send_all(client_socket, serialized_data)
+        res_data = recv_all(client_socket)
+        res = pickle.loads(res_data)
+        client_socket.close()
+
+        response['error'] = '1'
+        if res['data'] == 'SUCCESS':
+            response['error'] = '0'
+        response['msg'] = res['data']
+
+        return JsonResponse(response)
+
+
+@login_required
+@csrf_exempt
+def offline_revo(request):
+    response = {}
 
 
 @login_required
@@ -283,6 +355,13 @@ def online_auth(request):
                 kdenc = bytes(key.kd_enc)
             )
             dk.save()
+        at = models.Auth.objects.create(
+            userA = user,
+            userB = tar_user,
+            authtype = 0,
+            doc = documents
+        )
+        at.save()
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
@@ -291,6 +370,7 @@ def online_auth(request):
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
+        client_socket.close()
 
         response['error'] = '1'
         if res['data'] == 'SUCCESS':
@@ -358,6 +438,7 @@ def offline_auth(request):
             user = tar_user,
             aid = bytes(aset.contents.aid)
         )
+        ad.save()
         for key in ret_key:
             dk = models.DocKey.objects.create(
                 user = tar_user,
@@ -383,6 +464,7 @@ def offline_auth(request):
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
         res = pickle.loads(res_data)
+        client_socket.close()
 
         response['error'] = '1'
         if res['data'] == 'SUCCESS':

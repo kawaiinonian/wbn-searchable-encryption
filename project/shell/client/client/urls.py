@@ -32,4 +32,6 @@ urlpatterns = [
     path('online_auth/', views.online_auth),
     path('offline_auth/', views.offline_auth),
     path('delete/', views.delete),
+    path('online_revo/', views.online_revo),
+    path('offline_revo/', views.offline_revo),
 ]
