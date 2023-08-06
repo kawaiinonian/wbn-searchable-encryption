@@ -35,7 +35,7 @@ class c_server:
         Aset: Dict[bytes, Aset_item], Xset: Dict[bytes, bytes]):
 
         ret = []
-        x = 1
+        x = b'a'
         for i, t in enumerate(token):
             if t[0] in Uset.keys():
                 x = self.power(t[1], Uset[t[0]])
