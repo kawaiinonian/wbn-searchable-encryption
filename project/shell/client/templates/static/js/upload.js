@@ -745,3 +745,63 @@ document.getElementById('onlineButton').addEventListener('click', async function
   }
 });
 
+document.getElementById('offlineButton').addEventListener('click', async function (e) {
+  e.preventDefault();  // 阻止链接的默认行为
+
+  // 使用Fetch API获取用户名列表
+  const response = await fetch('/offline_revo/', {
+    method: 'GET',
+  });
+
+  const data = await response.json();
+
+  if (data.usernames && data.usernames.length > 0) {
+    // 构建下拉列表的选项
+    const usernames = data.usernames;
+    const inputOptions = {};
+    usernames.forEach((username, index) => {
+      inputOptions[index] = username;
+    });
+
+    Swal.fire({
+      title: 'Choose a user to revocate:',
+      input: 'select',
+      inputOptions: inputOptions,
+      showCancelButton: true,
+      showCloseButton: true,
+      focusConfirm: false,
+      confirmButtonText: 'Revocate',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const selectedIndex = result.value;
+        if (selectedIndex != null) {
+          const selectedUsername = usernames[selectedIndex];
+
+          const formData = new FormData();
+          formData.append('username', selectedUsername);
+
+          const response = await fetch('/offline_revo/', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (data.error == '0') {
+            Swal.fire(
+              'Revocated!',
+              `User ${selectedUsername}'s authorization has been revocated.`,
+              'success'
+            );
+          } else {
+            Swal.fire(
+              'Revocation Failed!',
+              'Failed to revocate.',
+              'error'
+            );
+          }
+        }
+      }
+    });
+  }
+});

@@ -73,7 +73,8 @@ def handle_client(client_socket):
                     value_to_remove = list(tmp.values())[0]
                     removed_items = [key for key, value in XSETS.items() if value == value_to_remove]
                     for key in removed_items:
-                        XSETS.pop(key)
+                        if key in XSETS.keys():
+                            XSETS.pop(key)
                     print(XSETS)
                     re = 'SUCCESS'
                 except Exception as e:
@@ -87,12 +88,41 @@ def handle_client(client_socket):
                     keys_to_remove = tmp.keys()
                     removed_items = [key for key, value in USETS.items() if key in keys_to_remove]
                     for key in removed_items:
-                        USETS.pop(key)
+                        if key in USETS.keys():
+                            USETS.pop(key)
                     print(USETS)
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'ONLINEREVO', 'data': re}
+
+            # OfflineRevo
+            elif message['function'] == 'OFFLINEREVO':
+                tmp = message['data']
+                try:
+                    keys_to_remove = [tmp['aid']]
+                    print(ASETS)
+                    print(keys_to_remove)
+                    while len(keys_to_remove) > 0:
+                        dkeys = []
+                        removed_items = []
+                        for key, value in ASETS.items():
+                            if key in keys_to_remove:
+                                removed_items.append(key)
+                                dkeys = list(set(dkeys + value.dlist))
+                        
+                        print(removed_items)
+                        for key in removed_items:
+                            if key in ASETS.keys():
+                                ASETS.pop(key)
+
+                        keys_to_remove = dkeys
+                    
+                    print(ASETS)
+                    re = 'SUCCESS'
+                except Exception as e:
+                    re = f'Error: {e}'
+                response = {'src': server, 'dst': user_id, 'function': 'OFFLINEREVO', 'data': re}
 
             # OnlineAuth
             elif message['function'] == 'ONLINE':

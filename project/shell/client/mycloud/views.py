@@ -307,6 +307,84 @@ def online_revo(request):
 @csrf_exempt
 def offline_revo(request):
     response = {}
+    if request.method == 'GET':
+        user = request.user
+        ats = models.Auth.objects.filter(userA=user, authtype=1)
+        usernames = []
+        for a in ats:
+            ubn = a.userB.username
+            if ubn not in usernames:
+                usernames.append(ubn)
+        response['usernames'] = usernames
+        print(usernames)
+        return JsonResponse(response)
+
+    elif request.method == 'POST':
+        tar_name = request.POST.get('username')
+        tar_user = User.objects.get(username=tar_name)
+        if tar_user is None:
+            return JsonResponse({'msg': '目标用户不存在', 'error': '1'})
+
+        fun = 'OFFLINEREVO'
+        user = request.user
+        username = user.username
+        aida = None
+        
+        at = models.Auth.objects.get(userA=user, userB=tar_user, authtype=1)
+        documents = at.doc
+        at.delete()
+        documents = documents.split( )
+        doc = [bytes(documents[0].encode()).ljust(LAMBDA) + bytes(documents[1].encode()).ljust(LAMBDA)]
+
+        print(doc)
+
+        ub = get_key_from_bytes(bytes(tar_name.encode()))
+        ukey1 = models.UKey.objects.get(user=user)
+        uk1 = USER_KEY(
+            get_key_from_bytes(ukey1.uk1),
+            get_key_from_bytes(ukey1.uk2)
+        )
+        ukey2 = models.UKey.objects.get(user=tar_user)
+        uk2 = USER_KEY(
+            get_key_from_bytes(ukey2.uk1),
+            get_key_from_bytes(ukey2.uk2)
+        )
+        userauth = models.UsrAuth.objects.filter(user=user)
+        if userauth is None:
+            userauth = []
+        else:
+            userauth = [USER_AUTH(
+                    get_d_from_bytes(o.d),
+                    get_key_from_bytes(o.uid),
+                    get_element_from_bytes(o.offtok)
+                ) for o in userauth]
+        dockey = models.DocKey.objects.filter(user=user)
+        dockey = [DOC_KEY(
+                get_d_from_bytes(d.d), 
+                get_key_from_bytes(d.kdenc), 
+                get_key_from_bytes(d.kd)
+            ) for d in dockey]
+
+        aset, ret_auth, ret_key = cusr.offline_auth(uk1, uk2, doc, ub, dockey, userauth)
+
+        print(aset.contents.aid)
+
+        data = {'aid': bytes(aset.contents.aid), 'alpha': bytes(aset.contents.trapgate), 'aidA': aida}
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
+        serialized_data = pickle.dumps(message)
+        send_all(client_socket, serialized_data)
+        res_data = recv_all(client_socket)
+        res = pickle.loads(res_data)
+        client_socket.close()
+
+        response['error'] = '1'
+        if res['data'] == 'SUCCESS':
+            response['error'] = '0'
+        response['msg'] = res['data']
+
+        return JsonResponse(response)
 
 
 @login_required
@@ -400,8 +478,8 @@ def offline_auth(request):
             aida = None
 
         username = user.username
-        documents = request.POST.get('documents')
-        documents = documents.split( )
+        document = request.POST.get('documents')
+        documents = document.split( )
         # doc = [bytes(username).ljust(LAMBDA) + d.ljust(LAMBDA) for d in documents]
         doc = [bytes(documents[0].encode()).ljust(LAMBDA) + bytes(documents[1].encode()).ljust(LAMBDA)]
         print(doc)
@@ -434,6 +512,13 @@ def offline_auth(request):
 
         aset, ret_auth, ret_key = cusr.offline_auth(uk1, uk2, doc, ub, dockey, userauth)
 
+        at = models.Auth.objects.create(
+            userA = user,
+            userB = tar_user,
+            authtype = 1,
+            doc = document
+        )
+        at.save()
         ad = models.Aid.objects.create(
             user = tar_user,
             aid = bytes(aset.contents.aid)
