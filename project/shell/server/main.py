@@ -182,7 +182,7 @@ if __name__ == "__main__":
     host = "127.0.0.1"
     port = 12345
 
-    libserver = "/home/secreu/wbn-searchable-encryption/project/core/libserver.so"
+    libserver = "./libserver.so"
     c_svr = c_server(libserver)
 
     xPath = "sets/xsets.pkl"
