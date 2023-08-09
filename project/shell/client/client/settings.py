@@ -128,3 +128,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 指定媒体文件上传的根路径（绝对路径）
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 指定媒体文件的URL前缀
+MEDIA_URL = '/media/'
