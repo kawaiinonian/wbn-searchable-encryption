@@ -20,6 +20,9 @@ from django.contrib import admin
 from django.urls import path
 from mycloud import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('greet/', views.greet),
@@ -35,3 +38,7 @@ urlpatterns = [
     path('online_revo/', views.online_revo),
     path('offline_revo/', views.offline_revo),
 ]
+
+# 添加处理媒体文件的URL模式
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
