@@ -39,7 +39,7 @@ class c_server:
             if t[0] in Uset.keys():
                 x = self.power(t[1], Uset[t[0]])
             else:
-                return ret
+                continue
 
             if aid is not None and aid in Aset.keys():
                 x = self.power(x, Aset[aid].alpha)
