@@ -36,6 +36,7 @@ class Aid(models.Model):
 
 class Documents(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='files/', default='default')
     doc = models.CharField(max_length=45)
     class Meta:
         unique_together = (("user", "doc"),)
