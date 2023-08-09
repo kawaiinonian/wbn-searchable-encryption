@@ -50,7 +50,6 @@ searchImage.addEventListener('click', function () {
 function FileButtonFunctions() {
 
   const authorizeButtons = document.querySelectorAll(".authorize");
-
   authorizeButtons.forEach(button => {
     button.addEventListener("click", async () => {
       // 使用Fetch API获取用户名列表
@@ -122,14 +121,12 @@ function FileButtonFunctions() {
 
   // 获取所有下载按钮
   const downloadButtons = document.querySelectorAll(".download");
-
   downloadButtons.forEach(button => {
     button.addEventListener("click", () => {
       // 获取该文件元素
       const fileItem = button.closest(".file-item");
       // 获取文件名和文件内容
       const fileName = fileItem.querySelector(".file-link").textContent;
-      const fileContent = "This is the content of file: " + fileName;
 
       Swal.fire({
         title: 'Do you want to download?',
@@ -140,17 +137,13 @@ function FileButtonFunctions() {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, download it!'
       }).then((result) => {
-        // 如果确认下载，则创建一个Blob对象并下载,要小心这里只是简单创建了一个blod对象,实际还有其他文件类型,后需完善
         if (result.isConfirmed) {
-          const blob = new Blob([fileContent], { type: "text/plain" });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
+          actualFileName = fileName.substring(32).trim();
+          // 创建下载链接
+          const downloadLink = document.createElement("a");
+          downloadLink.href = `/media/files/${encodeURIComponent(actualFileName)}`; // 替换为实际的下载链接
+          downloadLink.download = actualFileName;
+          downloadLink.click();
           Swal.fire(
             'Downloaded!',
             'Your file has been downloaded.',
@@ -164,7 +157,6 @@ function FileButtonFunctions() {
   //点击分享按钮出现分享面板
   // 创建分享面板
   const shareButtons = document.querySelectorAll(".share");
-
   shareButtons.forEach(button => {
     button.addEventListener("click", () => {
       Swal.fire({

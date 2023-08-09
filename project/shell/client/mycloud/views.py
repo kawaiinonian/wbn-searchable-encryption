@@ -188,20 +188,28 @@ def add(request):
             get_key_from_bytes(skey.sk2), 
             get_key_from_bytes(skey.sk3)
         )
+
         documents = request.POST.get('documents')
         documents = json.loads(documents)
+        if 'file' in request.FILES:
+            f = request.FILES['file']
+        else:
+            f = None
 
         print(documents)
 
         file = []
-        for k, v in documents.items():
-            vv = []
-            for w in v:
-                if w != '':
-                    vv.append(bytes(w.encode()))
-            file.append(get_fd(vv, bytes(username.encode()).ljust(LAMBDA) + bytes(k.encode()).ljust(LAMBDA)))
-            doc = models.Documents.objects.create(user=user, doc=k)
-            doc.save()
+        k = list(documents.keys())[0]
+        v = list(documents.values())[0]
+        vv = []
+        for w in v:
+            if w != '':
+                vv.append(bytes(w.encode()))
+        file.append(get_fd(vv, bytes(username.encode()).ljust(LAMBDA) + bytes(k.encode()).ljust(LAMBDA)))
+        doc = models.Documents.objects.create(user=user, doc=k)
+        if f is not None:
+            doc.file = f
+        doc.save()
         
         print(sk)
         print(file)

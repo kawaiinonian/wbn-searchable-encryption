@@ -4,7 +4,6 @@
 function FileButtonFunctions() {
 
   const authorizeButtons = document.querySelectorAll(".authorize");
-
   authorizeButtons.forEach(button => {
     button.addEventListener("click", async () => {
       // 使用Fetch API获取用户名列表
@@ -75,7 +74,6 @@ function FileButtonFunctions() {
 
   //删除按钮,点击后弹出是否确认删除
   const deleteButtons = document.querySelectorAll(".delete");
-
   deleteButtons.forEach(button => {
     button.addEventListener("click", () => {
       // 获取该文件元素
@@ -125,14 +123,12 @@ function FileButtonFunctions() {
 
   // 获取所有下载按钮
   const downloadButtons = document.querySelectorAll(".download");
-
   downloadButtons.forEach(button => {
     button.addEventListener("click", () => {
       // 获取该文件元素
       const fileItem = button.closest(".file-item");
       // 获取文件名和文件内容
       const fileName = fileItem.querySelector(".file-link").textContent;
-      const fileContent = "This is the content of file: " + fileName;
 
       Swal.fire({
         title: 'Do you want to download?',
@@ -143,17 +139,12 @@ function FileButtonFunctions() {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, download it!'
       }).then((result) => {
-        // 如果确认下载，则创建一个Blob对象并下载,要小心这里只是简单创建了一个blod对象,实际还有其他文件类型,后需完善
         if (result.isConfirmed) {
-          const blob = new Blob([fileContent], { type: "text/plain" });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
+          // 创建下载链接
+          const downloadLink = document.createElement("a");
+          downloadLink.href = `/media/files/${encodeURIComponent(fileName)}`; // 替换为实际的下载链接
+          downloadLink.download = fileName;
+          downloadLink.click();
           Swal.fire(
             'Downloaded!',
             'Your file has been downloaded.',
@@ -167,7 +158,6 @@ function FileButtonFunctions() {
   //点击分享按钮出现分享面板
   // 创建分享面板
   const shareButtons = document.querySelectorAll(".share");
-
   shareButtons.forEach(button => {
     button.addEventListener("click", () => {
       Swal.fire({
@@ -252,80 +242,6 @@ newBtn.addEventListener('click', () => {
       const fileName = result.value; // 获取用户输入的文件夹名称
 
       if (fileName) { // 如果用户输入了名称
-        const newFolder = document.createElement('li');
-        newFolder.className = 'file-item';
-
-        const fileIcon = document.createElement('div');
-        fileIcon.className = 'file-icon';
-        const fileIconImg = document.createElement('i');
-
-        const lastName = getFileType(fileName);
-
-        if (lastName == "word") {
-          fileIconImg.className = "fas fa-file-word";
-        } else if (lastName == "pdf") {
-          fileIconImg.className = "fas fa-file-pdf";
-        } else if (lastName == "txt") {
-          fileIconImg.className = "fas fa-file-alt";
-        } else if (lastName == "mp3") {
-          fileIconImg.className = "fas fa-file-audio";
-        } else if (lastName == "mp4") {
-          fileIconImg.className = "fas fa-file-video";
-        } else if (lastName == "image") {
-          fileIconImg.className = "fas fa-file-image";
-        } else if (lastName == "archive") {
-          fileIconImg.className = "fas fa-file-archive";
-        } else if (lastName == "exe") {
-          fileIconImg.className = "fas fa-file-code";
-        } else if (lastName == "aaa") {
-          fileIconImg.className = "fas fa-file-alt";
-        }
-
-        fileIcon.appendChild(fileIconImg);
-        newFolder.appendChild(fileIcon);
-
-        // 创建文件名和链接,添加文件到列表
-        const fileInfo = document.createElement('div');
-        fileInfo.className = 'file-info';
-        const fileLink = document.createElement('span');
-        fileLink.className = 'file-link';
-        fileLink.textContent = fileName;
-        fileInfo.appendChild(fileLink);
-        newFolder.appendChild(fileInfo);
-
-        // 创建删除、下载和分享,收藏按钮
-        // 添加按钮授权
-        const authBtn = document.createElement("button");
-        authBtn.className = "authorize file-action";
-        authBtn.id = 'new-btn';
-        const authIcon = document.createElement("i");
-        authIcon.className = "fas fa-user-shield";
-        authBtn.appendChild(authIcon);
-        newFolder.appendChild(authBtn);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete file-action';
-        deleteBtn.id = 'new-btn'; // 设置按钮的id
-        const deleteIcon = document.createElement('i');
-        deleteIcon.className = 'fas fa-trash-alt';
-        deleteBtn.appendChild(deleteIcon);
-        newFolder.appendChild(deleteBtn);
-
-        const downloadBtn = document.createElement('button');
-        downloadBtn.className = 'download file-action';
-        downloadBtn.id = 'new-btn';
-        const downloadIcon = document.createElement('i');
-        downloadIcon.className = 'fas fa-download';
-        downloadBtn.appendChild(downloadIcon);
-        newFolder.appendChild(downloadBtn);
-
-        const shareBtn = document.createElement('button');
-        shareBtn.className = 'share file-action';
-        shareBtn.id = 'new-btn';
-        const shareIcon = document.createElement('i');
-        shareIcon.className = 'fas fa-share';
-        shareBtn.appendChild(shareIcon);
-        newFolder.appendChild(shareBtn);
 
         //上传文件后要求用户输入对应的关键词
         Swal.fire({
@@ -375,6 +291,84 @@ newBtn.addEventListener('click', () => {
                     icon: 'success',
                     title: 'Uploaded successfully!',
                   })
+
+                  const newFolder = document.createElement('li');
+                  newFolder.className = 'file-item';
+
+                  const fileIcon = document.createElement('div');
+                  fileIcon.className = 'file-icon';
+                  const fileIconImg = document.createElement('i');
+
+                  const lastName = getFileType(fileName);
+
+                  if (lastName == "word") {
+                    fileIconImg.className = "fas fa-file-word";
+                  } else if (lastName == "pdf") {
+                    fileIconImg.className = "fas fa-file-pdf";
+                  } else if (lastName == "txt") {
+                    fileIconImg.className = "fas fa-file-alt";
+                  } else if (lastName == "mp3") {
+                    fileIconImg.className = "fas fa-file-audio";
+                  } else if (lastName == "mp4") {
+                    fileIconImg.className = "fas fa-file-video";
+                  } else if (lastName == "image") {
+                    fileIconImg.className = "fas fa-file-image";
+                  } else if (lastName == "archive") {
+                    fileIconImg.className = "fas fa-file-archive";
+                  } else if (lastName == "exe") {
+                    fileIconImg.className = "fas fa-file-code";
+                  } else if (lastName == "aaa") {
+                    fileIconImg.className = "fas fa-file-alt";
+                  }
+
+                  fileIcon.appendChild(fileIconImg);
+                  newFolder.appendChild(fileIcon);
+
+                  // 创建文件名和链接,添加文件到列表
+                  const fileInfo = document.createElement('div');
+                  fileInfo.className = 'file-info';
+                  const fileLink = document.createElement('span');
+                  fileLink.className = 'file-link';
+                  fileLink.textContent = fileName;
+                  fileInfo.appendChild(fileLink);
+                  newFolder.appendChild(fileInfo);
+
+                  // 创建删除、下载和分享,收藏按钮
+                  // 添加按钮授权
+                  const authBtn = document.createElement("button");
+                  authBtn.className = "authorize file-action";
+                  authBtn.id = 'new-btn';
+                  const authIcon = document.createElement("i");
+                  authIcon.className = "fas fa-user-shield";
+                  authBtn.appendChild(authIcon);
+                  newFolder.appendChild(authBtn);
+
+                  const deleteBtn = document.createElement('button');
+                  deleteBtn.className = 'delete file-action';
+                  deleteBtn.id = 'new-btn'; // 设置按钮的id
+                  const deleteIcon = document.createElement('i');
+                  deleteIcon.className = 'fas fa-trash-alt';
+                  deleteBtn.appendChild(deleteIcon);
+                  newFolder.appendChild(deleteBtn);
+
+                  const downloadBtn = document.createElement('button');
+                  downloadBtn.className = 'download file-action';
+                  downloadBtn.id = 'new-btn';
+                  const downloadIcon = document.createElement('i');
+                  downloadIcon.className = 'fas fa-download';
+                  downloadBtn.appendChild(downloadIcon);
+                  newFolder.appendChild(downloadBtn);
+
+                  const shareBtn = document.createElement('button');
+                  shareBtn.className = 'share file-action';
+                  shareBtn.id = 'new-btn';
+                  const shareIcon = document.createElement('i');
+                  shareIcon.className = 'fas fa-share';
+                  shareBtn.appendChild(shareIcon);
+                  newFolder.appendChild(shareBtn);
+
+                  fileList.appendChild(newFolder); // 将文件夹添加到file-list中
+                  FileButtonFunctions();
                 }
               } catch (error) {
                 console.error("error when sending data: ", error);
@@ -384,18 +378,10 @@ newBtn.addEventListener('click', () => {
             snedData();
           }
         })
-
-        fileList.appendChild(newFolder); // 将文件夹添加到file-list中
       }
-
-      // 实现新建文件的按钮功能
-      // 获取所有删除按钮
-      FileButtonFunctions();
-
     }
   }
   )
-
 });
 
 // 上传文件
@@ -406,164 +392,146 @@ document.getElementById("file-input").addEventListener("change", function (event
   if (file) {
     const fileName = file.name;
 
-    const newFileItem = document.createElement("li");
-    newFileItem.className = "file-item";
-
-    const fileIcon = document.createElement("div");
-    fileIcon.className = "file-icon";
-    const fileIconImg = document.createElement("i");
-    // 根据文件类型设置图标
-
-
-    const lastName = getFileType(fileName);
-
-    if (lastName == "word") {
-      fileIconImg.className = "fas fa-file-word";
-    }
-    else if (lastName == "pdf") {
-      fileIconImg.className = "fas fa-file-pdf";
-    }
-    else if (lastName == "txt") {
-      fileIconImg.className = "fas fa-file-alt";
-    }
-    else if (lastName == "mp3") {
-      fileIconImg.className = "fas fa-file-audio";
-    }
-    else if (lastName == "mp4") {
-      fileIconImg.className = "fas fa-file-video";
-    }
-    else if (lastName == "image") {
-      fileIconImg.className = "fas fa-file-image";
-    }
-    else if (lastName == "archive") {
-      fileIconImg.className = "fas fa-file-archive";
-    }
-    else if (lastName == "exe") {
-      fileIconImg.className = "fas fa-file-code";
-    }
-    else if (lastName == "aaa") {
-      fileIconImg.className = "fas fa-file-alt";
-    }
-
-    fileIcon.appendChild(fileIconImg);
-    newFileItem.appendChild(fileIcon);
-
-    const fileInfo = document.createElement("div");
-    fileInfo.className = "file-info";
-    const fileLink = document.createElement("span");
-    fileLink.className = "file-link";
-    fileLink.textContent = fileName;
-    fileInfo.appendChild(fileLink);
-
-    newFileItem.appendChild(fileInfo);
-
-    // 添加按钮授权
-    const authBtn = document.createElement("button");
-    authBtn.className = "authorize file-action";
-    authBtn.id = 'new-btn';
-    const authIcon = document.createElement("i");
-    authIcon.className = "fas fa-user-shield";
-    authBtn.appendChild(authIcon);
-    newFileItem.appendChild(authBtn);
-
-    // 添加删除按钮
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "delete file-action";
-    deleteBtn.id = 'new-btn';
-    const deleteIcon = document.createElement("i");
-    deleteIcon.className = "fas fa-trash-alt";
-    deleteBtn.appendChild(deleteIcon);
-    newFileItem.appendChild(deleteBtn);
-
-    // 添加下载按钮
-    const downloadBtn = document.createElement("button");
-    downloadBtn.className = "download file-action";
-    downloadBtn.id = 'new-btn';
-    const downloadIcon = document.createElement("i");
-    downloadIcon.className = "fas fa-download";
-    downloadBtn.appendChild(downloadIcon);
-    newFileItem.appendChild(downloadBtn);
-
-    // 添加分享按钮
-    const shareBtn = document.createElement("button");
-    shareBtn.className = "share file-action";
-    shareBtn.id = 'new-btn';
-    const shareIcon = document.createElement("i");
-    shareIcon.className = "fas fa-share";
-    shareBtn.appendChild(shareIcon);
-    newFileItem.appendChild(shareBtn);
-
-    // // 添加收藏按钮
-    // const favoriteBtn = document.createElement("button");
-    // favoriteBtn.className = "favorite file-action";
-    // favoriteBtn.id = 'new-btn';
-    // const favoriteIcon = document.createElement("i");
-    // favoriteIcon.className = "fas fa-star";
-    // favoriteBtn.appendChild(favoriteIcon);
-    // newFileItem.appendChild(favoriteBtn);
-
-    document.getElementById("files").appendChild(newFileItem);
-  }
-  //给按钮添加功能
-  FileButtonFunctions();
-
-  //上传文件后要求用户输入对应的关键词
-  Swal.fire({
-    title: '<span class="swal2-title">Please Enter the <span class="keyword">KeyWord</span></span>',
-    html: `<input id="swal-input1" class="swal2-input" placeholder="Keyword1">
+    //上传文件后要求用户输入对应的关键词
+    Swal.fire({
+      title: '<span class="swal2-title">Please Enter the <span class="keyword">KeyWord</span></span>',
+      html: `<input id="swal-input1" class="swal2-input" placeholder="Keyword1">
              <input id="swal-input2" class="swal2-input" placeholder="Keyword2">
              <input id="swal-input3" class="swal2-input" placeholder="Keyword3">`,
-    focusConfirm: false,
-    showCancelButton: true, // 添加取消按钮
-    confirmButtonText: '   OK',
-    cancelButtonText: 'Cancel',
-    preConfirm: () => {
-      const key1 = Swal.getPopup().querySelector('#swal-input1').value
-      const key2 = Swal.getPopup().querySelector('#swal-input2').value
-      const key3 = Swal.getPopup().querySelector('#swal-input3').value
-      if (!key1 && !key2 && !key3) {
-        Swal.showValidationMessage(`Please enter all keywords!`)
-      }
-      return { key1: key1, key2: key2, key3: key3 }
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const { key1, key2, key3 } = result.value;
-
-      async function snedData() {
-        //应该是可以在这里进行对应的后端传输
-        const documents = { fileName: [key1, key2, key3] };
-        const formData = new FormData();
-        formData.append('documents', documents);
-        try {
-          // 使用 fetch API 发送数据
-          const response = await fetch('/register_login/', {
-            method: 'POST',
-            body: formData,
-          });
-          const data = await response.json();
-
-          if (data['error'] == '1') {
-            // 如果服务器返回了一个错误，你可以在这里处理它
-            const message = data['msg'];
-            errorMessageElement.innerText = message;
-            return false;
-          } else {
-            Swal.fire({
-              icon: 'success',
-              title: 'Uploaded successfully!',
-            })
-          }
-        } catch (error) {
-          console.error("error when sending data: ", error);
+      focusConfirm: false,
+      showCancelButton: true, // 添加取消按钮
+      confirmButtonText: '   OK',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        const key1 = Swal.getPopup().querySelector('#swal-input1').value
+        const key2 = Swal.getPopup().querySelector('#swal-input2').value
+        const key3 = Swal.getPopup().querySelector('#swal-input3').value
+        if (!key1 && !key2 && !key3) {
+          Swal.showValidationMessage(`Please enter all keywords!`)
         }
+        return { fileName: fileName, key1: key1, key2: key2, key3: key3 }
       }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const { fileName, key1, key2, key3 } = result.value;
+        const kws = [key1, key2, key3];
+        const documents = { [fileName]: kws };
 
-      snedData();
-    }
-  })
+        async function snedData() {
+          //应该是可以在这里进行对应的后端传输
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append('documents', JSON.stringify(documents));
 
+          try {
+            // 使用 fetch API 发送数据
+            const response = await fetch('/add/', {
+              method: 'POST',
+              body: formData,
+            });
+            const data = await response.json();
 
+            if (data['error'] == '1') {
+              // 如果服务器返回了一个错误，你可以在这里处理它
+              const message = data['msg'];
+              errorMessageElement.innerText = message;
+              return false;
+            } else {
+              Swal.fire({
+                icon: 'success',
+                title: 'Uploaded successfully!',
+              })
+
+              const newFileItem = document.createElement("li");
+              newFileItem.className = "file-item";
+
+              const fileIcon = document.createElement("div");
+              fileIcon.className = "file-icon";
+              const fileIconImg = document.createElement("i");
+
+              // 根据文件类型设置图标
+              const lastName = getFileType(fileName);
+
+              if (lastName == "word") {
+                fileIconImg.className = "fas fa-file-word";
+              } else if (lastName == "pdf") {
+                fileIconImg.className = "fas fa-file-pdf";
+              } else if (lastName == "txt") {
+                fileIconImg.className = "fas fa-file-alt";
+              } else if (lastName == "mp3") {
+                fileIconImg.className = "fas fa-file-audio";
+              } else if (lastName == "mp4") {
+                fileIconImg.className = "fas fa-file-video";
+              } else if (lastName == "image") {
+                fileIconImg.className = "fas fa-file-image";
+              } else if (lastName == "archive") {
+                fileIconImg.className = "fas fa-file-archive";
+              } else if (lastName == "exe") {
+                fileIconImg.className = "fas fa-file-code";
+              } else if (lastName == "aaa") {
+                fileIconImg.className = "fas fa-file-alt";
+              }
+
+              fileIcon.appendChild(fileIconImg);
+              newFileItem.appendChild(fileIcon);
+
+              const fileInfo = document.createElement("div");
+              fileInfo.className = "file-info";
+              const fileLink = document.createElement("span");
+              fileLink.className = "file-link";
+              fileLink.textContent = fileName;
+              fileInfo.appendChild(fileLink);
+
+              newFileItem.appendChild(fileInfo);
+
+              // 添加按钮授权
+              const authBtn = document.createElement("button");
+              authBtn.className = "authorize file-action";
+              authBtn.id = 'new-btn';
+              const authIcon = document.createElement("i");
+              authIcon.className = "fas fa-user-shield";
+              authBtn.appendChild(authIcon);
+              newFileItem.appendChild(authBtn);
+
+              // 添加删除按钮
+              const deleteBtn = document.createElement("button");
+              deleteBtn.className = "delete file-action";
+              deleteBtn.id = 'new-btn';
+              const deleteIcon = document.createElement("i");
+              deleteIcon.className = "fas fa-trash-alt";
+              deleteBtn.appendChild(deleteIcon);
+              newFileItem.appendChild(deleteBtn);
+
+              // 添加下载按钮
+              const downloadBtn = document.createElement("button");
+              downloadBtn.className = "download file-action";
+              downloadBtn.id = 'new-btn';
+              const downloadIcon = document.createElement("i");
+              downloadIcon.className = "fas fa-download";
+              downloadBtn.appendChild(downloadIcon);
+              newFileItem.appendChild(downloadBtn);
+
+              // 添加分享按钮
+              const shareBtn = document.createElement("button");
+              shareBtn.className = "share file-action";
+              shareBtn.id = 'new-btn';
+              const shareIcon = document.createElement("i");
+              shareIcon.className = "fas fa-share";
+              shareBtn.appendChild(shareIcon);
+              newFileItem.appendChild(shareBtn);
+
+              document.getElementById("files").appendChild(newFileItem);
+              FileButtonFunctions();
+            }
+          } catch (error) {
+            console.error("error when sending data: ", error);
+          }
+        }
+
+        snedData();
+      }
+    })
+  }
 });
 
 
