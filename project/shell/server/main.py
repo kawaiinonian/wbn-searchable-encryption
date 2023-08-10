@@ -2,10 +2,8 @@ import socket
 import threading
 import pickle
 import signal
-
 import os
 
-# from consts import *
 from c_server import *
 
 XSETS = {}
@@ -56,11 +54,15 @@ def handle_client(client_socket):
             if message['function'] == 'ADD':
                 tmp = message['data']
                 try:
-                    # if user_id not in XSETS.keys():
-                    #     XSETS[user_id] = {}
-                    # XSETS[user_id] |= tmp
-                    XSETS |= tmp
+                    XSETS |= tmp[0]
                     print(XSETS)
+
+                    if tmp[1] is not None:
+                        path = 'enc_files/' + list(tmp[0].values())[0].replace(b'\x00', b'').decode('utf-8', errors='replace').replace('\\', '')
+                        # 存储加密的文件内容到本地文件
+                        with open(path, 'wb') as f:
+                            f.write(tmp[1])
+
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -128,9 +130,6 @@ def handle_client(client_socket):
             elif message['function'] == 'ONLINE':
                 tmp = message['data']
                 try:
-                    # if user_id not in USETS.keys():
-                    #     USETS[user_id] = {}
-                    # USETS[user_id] |= tmp
                     USETS |= tmp
                     print(USETS)
                     re = 'SUCCESS'
@@ -142,9 +141,6 @@ def handle_client(client_socket):
             elif message['function'] == 'OFFLINE':
                 tmp = message['data']
                 try:
-                    # if user_id not in ASETS.keys():
-                    #     ASETS[user_id] = {}
-                    # c_svr.Aset_update(ASETS[user_id], tmp['aid'], tmp['alpha'], tmp['aidA'])
                     c_svr.Aset_update(ASETS, tmp['aid'], tmp['alpha'], tmp['aidA'])
                     print(ASETS)
                     re = 'SUCCESS'
@@ -158,20 +154,11 @@ def handle_client(client_socket):
                 try:
                     token = tmp['token']
                     aid = tmp['aid']
-                    # re = c_svr.search(token, aid, USETS[user_id], ASETS[user_id], XSETS[user_id])
                     re = c_svr.search(token, aid, USETS, ASETS, XSETS)
                     print(re)
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'SEARCH', 'data': re}
-
-            # Upload Files
-            elif message['function'] == 'UPLOAD':
-                response = '处理功能2的结果: ' + message['data']
-
-            # Download Files
-            elif message['function'] == 'DOWNLOAD':
-                response = '处理功能2的结果: ' + message['data']
 
             else:
                 re = 'Error: What do you want to do?'

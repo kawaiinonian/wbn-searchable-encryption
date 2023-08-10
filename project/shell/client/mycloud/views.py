@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.db import transaction
 from mycloud import models
 
 from se.skt import recv_all, send_all, SERVER_HOST, SERVER_PORT, SERVER_NAME
@@ -18,6 +17,15 @@ from se.datatype import LAMBDA, SEARCH_KEY, USER_KEY, USER_AUTH, DOC_KEY
 from se.method import get_fd, get_key_from_bytes, get_d_from_bytes, get_element_from_bytes, get_word_from_bytes
 from se.c_user import c_user
 cusr = c_user('se/libclient.so')
+
+from cryptography.fernet import Fernet
+import base64
+
+# 生成或使用固定的密钥，确保密钥长度为 32 个字节
+SECRET = 'CrazyThursdayVme50'.encode()
+SECRET_KEY = base64.urlsafe_b64encode(SECRET.ljust(32))
+# 创建 Fernet 加密对象
+fernet = Fernet(SECRET_KEY)
 
 # Create your views here.
 
@@ -193,8 +201,10 @@ def add(request):
         documents = json.loads(documents)
         if 'file' in request.FILES:
             f = request.FILES['file']
+            enc_f = fernet.encrypt(f.read())
         else:
             f = None
+            enc_f = None
 
         print(documents)
 
@@ -221,7 +231,7 @@ def add(request):
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
-        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': xset}
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': (xset, enc_f)}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
