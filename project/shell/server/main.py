@@ -58,7 +58,7 @@ def handle_client(client_socket):
                     print(XSETS)
 
                     if tmp[1] is not None:
-                        path = 'enc_files/' + list(tmp[0].values())[0].replace(b'\x00', b'').decode('utf-8', errors='replace').replace('\\', '')
+                        path = 'enc_files/' + list(tmp[0].values())[0].replace(b'\x00', b'').decode('utf-8', errors='replace').replace('/', '')
                         # 存储加密的文件内容到本地文件
                         with open(path, 'wb') as f:
                             f.write(tmp[1])
