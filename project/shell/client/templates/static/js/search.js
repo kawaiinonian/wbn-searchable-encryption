@@ -138,7 +138,9 @@ function FileButtonFunctions() {
         confirmButtonText: 'Yes, download it!'
       }).then((result) => {
         if (result.isConfirmed) {
-          actualFileName = fileName.substring(32).trim();
+          const trimmedFileName = fileName.trim();
+          const startIndex = trimmedFileName.lastIndexOf(' ') + 1;
+          const actualFileName = trimmedFileName.substring(startIndex);
           // 创建下载链接
           const downloadLink = document.createElement("a");
           downloadLink.href = `/media/files/${encodeURIComponent(actualFileName)}`; // 替换为实际的下载链接
