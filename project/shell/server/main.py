@@ -3,8 +3,10 @@ import threading
 import pickle
 import signal
 import os
+from datetime import datetime
 
 from c_server import *
+from mytree import *
 
 XSETS = {}
 USETS = {}
@@ -52,10 +54,17 @@ def handle_client(client_socket):
 
             # Add
             if message['function'] == 'ADD':
+                print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <文件上传> 请求")
                 tmp = message['data']
                 try:
                     XSETS |= tmp[0]
-                    print(XSETS)
+
+                    print(f"[{datetime.now()}] 文件信息表 <XSET> 新增以下内容:")
+                    print("-----")
+                    for key, value in tmp[0].items():
+                        print(f'|<Xwd> {key}')
+                        print(f'|<Ywd> {value}')
+                        print("-----")
 
                     if tmp[1] is not None:
                         path = 'enc_files/' + list(tmp[0].values())[0].replace(b'\x00', b'').decode('utf-8', errors='replace').replace('/', '')
@@ -70,14 +79,20 @@ def handle_client(client_socket):
 
             # Delete
             elif message['function'] == 'DELETE':
+                print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <文件更新> 请求")
                 tmp = message['data']
                 try:
                     value_to_remove = list(tmp.values())[0]
-                    removed_items = [key for key, value in XSETS.items() if value == value_to_remove]
-                    for key in removed_items:
+                    removed_items = [(key, value) for key, value in XSETS.items() if value == value_to_remove]
+                    print(f"[{datetime.now()}] 文件信息表 <XSET> 删除以下内容:")
+                    print("-----")
+                    for (key, value) in removed_items:
+                        print(f'|<Xwd> {key}')
+                        print(f'|<Ywd> {value}')
+                        print("-----")
                         if key in XSETS.keys():
                             XSETS.pop(key)
-                    print(XSETS)
+
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -85,14 +100,26 @@ def handle_client(client_socket):
 
             # OnlineRevo
             elif message['function'] == 'ONLINEREVO':
-                tmp = message['data']
+                print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <撤销在线授权> 请求")
+                (tmp, edge_list) = message['data']
                 try:
                     keys_to_remove = tmp.keys()
-                    removed_items = [key for key, value in USETS.items() if key in keys_to_remove]
-                    for key in removed_items:
+                    removed_items = [(key, value) for key, value in USETS.items() if key in keys_to_remove]
+                    print(f"[{datetime.now()}] DO-DU授权关系表 <USET> 删除以下内容:")
+                    print("-----")
+                    for (key, value) in removed_items:
+                        print(f'|<uid> {key}')
+                        print(f'|<Ud>  {value}')
+                        print("-----")
                         if key in USETS.keys():
                             USETS.pop(key)
-                    print(USETS)
+
+                    forest = build_forest(edge_list)
+                    print("授权树变更为:")
+                    for tree in forest:
+                        print_tree(tree)
+                        print("\n" + "-" * 20)
+
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -100,11 +127,12 @@ def handle_client(client_socket):
 
             # OfflineRevo
             elif message['function'] == 'OFFLINEREVO':
-                tmp = message['data']
+                print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <撤销离线授权> 请求")
+                (tmp, edge_list) = message['data']
                 try:
                     keys_to_remove = [tmp['aid']]
-                    print(ASETS)
-                    print(keys_to_remove)
+                    print(f"[{datetime.now()}] DU间授权关系表 <ASET> 删除以下键值:")
+                    print("-----")
                     while len(keys_to_remove) > 0:
                         dkeys = []
                         removed_items = []
@@ -113,14 +141,20 @@ def handle_client(client_socket):
                                 removed_items.append(key)
                                 dkeys = list(set(dkeys + value.dlist))
                         
-                        print(removed_items)
                         for key in removed_items:
                             if key in ASETS.keys():
+                                print(f"|<aid> {key}")
+                                print("-----")
                                 ASETS.pop(key)
 
                         keys_to_remove = dkeys
                     
-                    print(ASETS)
+                    forest = build_forest(edge_list)
+                    print("授权树变更为:")
+                    for tree in forest:
+                        print_tree(tree)
+                        print("\n" + "-" * 20)
+
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -128,10 +162,24 @@ def handle_client(client_socket):
 
             # OnlineAuth
             elif message['function'] == 'ONLINE':
-                tmp = message['data']
+                print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <在线授权> 请求")
+                (tmp, edge_list) = message['data']
                 try:
                     USETS |= tmp
-                    print(USETS)
+
+                    print(f"[{datetime.now()}] DO-DU授权信息表 <USET> 新增以下内容:")
+                    print("-----")
+                    for key, value in tmp.items():
+                        print(f'|<uid> {key}')
+                        print(f'|<Ud>  {value}')
+                        print("-----")                   
+
+                    forest = build_forest(edge_list)
+                    print("授权树变更为:")
+                    for tree in forest:
+                        print_tree(tree)
+                        print("\n" + "-" * 20)
+
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -139,10 +187,23 @@ def handle_client(client_socket):
             
             # OfflineAuth
             elif message['function'] == 'OFFLINE':
-                tmp = message['data']
+                print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <离线授权> 请求")
+                (tmp, edge_list) = message['data']
                 try:
                     c_svr.Aset_update(ASETS, tmp['aid'], tmp['alpha'], tmp['aidA'])
-                    print(ASETS)
+
+                    print(f"[{datetime.now()}] DU间授权信息表 <ASET> 新增以下内容:")
+                    print("-----") 
+                    print(f"|<aid> {tmp['aid']}")
+                    print(f"|<alp> {tmp['alpha']}")
+                    print("-----") 
+
+                    forest = build_forest(edge_list)
+                    print("授权树变更为:")
+                    for tree in forest:
+                        print_tree(tree)
+                        print("\n" + "-" * 20)
+
                     re = 'SUCCESS'
                 except Exception as e:
                     re = f'Error: {e}'
@@ -150,12 +211,29 @@ def handle_client(client_socket):
 
             # Search
             elif message['function'] == 'SEARCH':
+                print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <搜索> 请求")
                 tmp = message['data']
                 try:
                     token = tmp['token']
+                    print(f"> 用户令牌:")
+                    print("-----") 
+                    for (uid, stk) in token:
+                        print(f'|<uid> {uid}')
+                        print(f'|<stk> {stk}')
+                        print("-----")  
                     aid = tmp['aid']
+                    if aid is not None:
+                        print(f"> 用户离线授权索引:")
+                        print("-----") 
+                        print(f"|<aid> {aid}")
+                        print("-----") 
                     re = c_svr.search(token, aid, USETS, ASETS, XSETS)
-                    print(re)
+                    print("> 搜索结果:")
+                    print("-----") 
+                    for (idx, ywd) in re:
+                        print(f'|<idx> {idx}')
+                        print(f'|<Ywd> {ywd}')
+                        print("-----")  
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'SEARCH', 'data': re}
@@ -168,7 +246,7 @@ def handle_client(client_socket):
             send_all(client_socket, serialized_data)
 
         except Exception as e:
-            print(f"Client disconnects: {e}")
+            print(f"[{datetime.now()}] 客户端断开连接: {e}")
             clients.remove(client_socket)
             client_socket.close()
             break
@@ -179,7 +257,7 @@ def handle_quit(signum, frame):
     global ASETS
 
     try:
-        print("Quiting......")
+        print(f"[{datetime.now()}] Quiting......")
         while True:
             if not clients:
                 if XSETS:
@@ -216,7 +294,7 @@ if __name__ == "__main__":
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
     server_socket.listen()
-    print(f"Server begins listening on {host}: {port}")
+    print(f"[{datetime.now()}] 服务端监听于 {host}: {port}")
 
     clients = []
 
@@ -225,6 +303,6 @@ if __name__ == "__main__":
     while True:
         client_socket, client_address = server_socket.accept()
         clients.append(client_socket)
-        print(f"Client connects: {client_address}")
+        print(f"[{datetime.now()}] 客户端连接: {client_address}")
         client_thread = threading.Thread(target=handle_client, args=(client_socket,))
         client_thread.start()
