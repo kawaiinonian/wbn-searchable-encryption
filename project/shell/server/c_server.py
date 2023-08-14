@@ -40,7 +40,8 @@ class c_server:
                 x = self.power(t[1], Uset[t[0]])
             else:
                 continue
-
+            if x in Xset.keys():
+                ret.append((i, Xset[x]))
             if aid is not None and aid in Aset.keys():
                 x = self.power(x, Aset[aid].alpha)
             if x in Xset.keys():
