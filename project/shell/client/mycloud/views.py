@@ -282,6 +282,16 @@ def online_revo(request):
                 documents.append(dd)
             a.delete()
 
+        queue = [tar_user]
+        while len(queue) > 0:
+            usera = queue.pop(0)
+            ats = models.Auth.objects.filter(userA=usera)
+            for a in ats:
+                userb = a.userB
+                if userb not in queue:
+                    queue.append(userb)
+                a.delete()
+
         print(username)
         print(documents)
         
@@ -304,9 +314,16 @@ def online_revo(request):
         print(dockey)
         print(uset)
 
+        edge_list = []
+        ats = models.Auth.objects.all()
+        for a in ats:
+            edge = (a.userA.username, a.userB.username)
+            if edge not in edge_list:
+                edge_list.append(edge)
+
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
-        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': uset}
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': (uset, edge_list)}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
@@ -351,6 +368,17 @@ def offline_revo(request):
         at = models.Auth.objects.get(userA=user, userB=tar_user, authtype=1)
         documents = at.doc
         at.delete()
+
+        queue = [tar_user]
+        while len(queue) > 0:
+            usera = queue.pop(0)
+            ats = models.Auth.objects.filter(userA=usera)
+            for a in ats:
+                userb = a.userB
+                if userb not in queue:
+                    queue.append(userb)
+                a.delete()
+
         documents = documents.split( )
         doc = [bytes(documents[0].encode()).ljust(LAMBDA) + bytes(documents[1].encode()).ljust(LAMBDA)]
 
@@ -387,10 +415,17 @@ def offline_revo(request):
 
         print(aset.contents.aid)
 
+        edge_list = []
+        ats = models.Auth.objects.all()
+        for a in ats:
+            edge = (a.userA.username, a.userB.username)
+            if edge not in edge_list:
+                edge_list.append(edge)
+
         data = {'aid': bytes(aset.contents.aid), 'alpha': bytes(aset.contents.trapgate), 'aidA': aida}
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
-        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': (data, edge_list)}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
@@ -459,9 +494,16 @@ def online_auth(request):
         )
         at.save()
 
+        edge_list = []
+        ats = models.Auth.objects.all()
+        for a in ats:
+            edge = (a.userA.username, a.userB.username)
+            if edge not in edge_list:
+                edge_list.append(edge)
+
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
-        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': uset}
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': (uset, edge_list)}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
@@ -559,10 +601,17 @@ def offline_auth(request):
             )
             au.save()
 
+        edge_list = []
+        ats = models.Auth.objects.all()
+        for a in ats:
+            edge = (a.userA.username, a.userB.username)
+            if edge not in edge_list:
+                edge_list.append(edge)
+
         data = {'aid': bytes(aset.contents.aid), 'alpha': bytes(aset.contents.trapgate), 'aidA': aida}
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
-        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': data}
+        message = {'src': username, 'dst': SERVER_NAME, 'function': fun, 'data': (data, edge_list)}
         serialized_data = pickle.dumps(message)
         send_all(client_socket, serialized_data)
         res_data = recv_all(client_socket)
