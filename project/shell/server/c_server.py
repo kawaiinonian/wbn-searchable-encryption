@@ -42,9 +42,9 @@ class c_server:
                 continue
             if x in Xset.keys():
                 ret.append((i, Xset[x]))
-            if aid is not None and aid in Aset.keys():
+            elif aid is not None and aid in Aset.keys():
                 x = self.power(x, Aset[aid].alpha)
-            if x in Xset.keys():
-                ret.append((i, Xset[x]))
+                if x in Xset.keys():
+                    ret.append((i, Xset[x]))
 
         return ret
