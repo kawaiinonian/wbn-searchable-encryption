@@ -1,6 +1,7 @@
 #include "client.h"
 #include <iostream>
 #include <fstream>
+// #include <unordered_map>
 
 const char *filename = "/root/project514/project/debug";
 
@@ -177,7 +178,7 @@ void offline_auth(USER_KEY A_ukey, USER_KEY B_ukey, uint8_t ub[],
 
 
 void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY dkey[], int doc_len,
-    USER_AUTH usr_au[], int auth_len, TOKEN tk[]) {
+    USER_AUTH usr_au[], int auth_len, TOKEN tk[], DOCKEY retdkey[]) {
     std::map<const uint8_t*, USER_AUTH_ITEM, Uint8ArrayComparator> user_auth;
     std::map<const uint8_t*, DOCKEY_ITEM, Uint8ArrayComparator> doc_key;
     for (int i = 0; i < auth_len; i++) {
@@ -190,6 +191,7 @@ void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY dkey[], int doc_len,
     for (auto &iter : doc_key) {
         uint8_t d[PATH_LEN] = {0};
         memcpy(d, iter.first, PATH_LEN);
+        retdkey[k] = DOCKEY(d, iter.second.Kd_enc, iter.second.Kd);
         if (user_auth.find(iter.first) == user_auth.end()) {
             uint8_t uid[LAMBDA] = {0}, kdw[LAMBDA] = {0}, kud[LAMBDA] = {0};
             bn_t kdw_bn, kud_bn, index;

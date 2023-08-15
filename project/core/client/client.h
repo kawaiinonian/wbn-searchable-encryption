@@ -13,5 +13,5 @@ extern "C" {
         DOCKEY Dockey[], int dockey_len, ASET_ITEM *aset, USER_AUTH auth2b[], 
         DOCKEY dockey2b[]);
     void search_generate(uint8_t* word, USER_KEY ukey, DOCKEY dkey[], int doc_len,
-        USER_AUTH usr_au[], int auth_len, TOKEN tk[]);
+        USER_AUTH usr_au[], int auth_len, TOKEN tk[], DOCKEY retdkey[]);
 }
