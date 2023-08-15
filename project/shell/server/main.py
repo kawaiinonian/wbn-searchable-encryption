@@ -115,11 +115,11 @@ def handle_client(client_socket):
                             USETS.pop(key)
 
                     forest = build_forest(edge_list)
-                    print("授权树变更为:")
+                    print("> 授权树变更为:")
                     for tree_id, root, edges in forest:
                         root_node = TreeNode(root)
                         print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 20)
+                        print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
@@ -151,11 +151,11 @@ def handle_client(client_socket):
                         keys_to_remove = dkeys
                     
                     forest = build_forest(edge_list)
-                    print("授权树变更为:")
+                    print("> 授权树变更为:")
                     for tree_id, root, edges in forest:
                         root_node = TreeNode(root)
                         print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 20)
+                        print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
@@ -177,11 +177,11 @@ def handle_client(client_socket):
                         print("-" * 20)                   
 
                     forest = build_forest(edge_list)
-                    print("授权树变更为:")
+                    print("> 授权树变更为:")
                     for tree_id, root, edges in forest:
                         root_node = TreeNode(root)
                         print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 20)
+                        print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
@@ -202,11 +202,11 @@ def handle_client(client_socket):
                     print("-" * 20) 
 
                     forest = build_forest(edge_list)
-                    print("授权树变更为:")
+                    print("> 授权树变更为:")
                     for tree_id, root, edges in forest:
                         root_node = TreeNode(root)
                         print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 20)
+                        print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
