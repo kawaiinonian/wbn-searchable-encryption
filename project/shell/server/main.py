@@ -60,11 +60,11 @@ def handle_client(client_socket):
                     XSETS |= tmp[0]
 
                     print(f"[{datetime.now()}] 文件信息表 <XSET> 新增以下内容:")
-                    print("-----")
+                    print("-" * 20)
                     for key, value in tmp[0].items():
                         print(f'|<Xwd> {key}')
                         print(f'|<Ywd> {value}')
-                        print("-----")
+                        print("-" * 20)
 
                     if tmp[1] is not None:
                         path = 'enc_files/' + list(tmp[0].values())[0].replace(b'\x00', b'').decode('utf-8', errors='replace').replace('/', '')
@@ -85,11 +85,11 @@ def handle_client(client_socket):
                     value_to_remove = list(tmp.values())[0]
                     removed_items = [(key, value) for key, value in XSETS.items() if value == value_to_remove]
                     print(f"[{datetime.now()}] 文件信息表 <XSET> 删除以下内容:")
-                    print("-----")
+                    print("-" * 20)
                     for (key, value) in removed_items:
                         print(f'|<Xwd> {key}')
                         print(f'|<Ywd> {value}')
-                        print("-----")
+                        print("-" * 20)
                         if key in XSETS.keys():
                             XSETS.pop(key)
 
@@ -106,18 +106,19 @@ def handle_client(client_socket):
                     keys_to_remove = tmp.keys()
                     removed_items = [(key, value) for key, value in USETS.items() if key in keys_to_remove]
                     print(f"[{datetime.now()}] DO-DU授权关系表 <USET> 删除以下内容:")
-                    print("-----")
+                    print("-" * 20)
                     for (key, value) in removed_items:
                         print(f'|<uid> {key}')
                         print(f'|<Ud>  {value}')
-                        print("-----")
+                        print("-" * 20)
                         if key in USETS.keys():
                             USETS.pop(key)
 
                     forest = build_forest(edge_list)
                     print("授权树变更为:")
-                    for tree in forest:
-                        print_tree(tree)
+                    for tree_id, root, edges in forest:
+                        root_node = TreeNode(root)
+                        print_tree(tree_id, root_node, edges)
                         print("\n" + "-" * 20)
 
                     re = 'SUCCESS'
@@ -132,7 +133,7 @@ def handle_client(client_socket):
                 try:
                     keys_to_remove = [tmp['aid']]
                     print(f"[{datetime.now()}] DU间授权关系表 <ASET> 删除以下键值:")
-                    print("-----")
+                    print("-" * 20)
                     while len(keys_to_remove) > 0:
                         dkeys = []
                         removed_items = []
@@ -144,15 +145,16 @@ def handle_client(client_socket):
                         for key in removed_items:
                             if key in ASETS.keys():
                                 print(f"|<aid> {key}")
-                                print("-----")
+                                print("-" * 20)
                                 ASETS.pop(key)
 
                         keys_to_remove = dkeys
                     
                     forest = build_forest(edge_list)
                     print("授权树变更为:")
-                    for tree in forest:
-                        print_tree(tree)
+                    for tree_id, root, edges in forest:
+                        root_node = TreeNode(root)
+                        print_tree(tree_id, root_node, edges)
                         print("\n" + "-" * 20)
 
                     re = 'SUCCESS'
@@ -168,16 +170,17 @@ def handle_client(client_socket):
                     USETS |= tmp
 
                     print(f"[{datetime.now()}] DO-DU授权信息表 <USET> 新增以下内容:")
-                    print("-----")
+                    print("-" * 20)
                     for key, value in tmp.items():
                         print(f'|<uid> {key}')
                         print(f'|<Ud>  {value}')
-                        print("-----")                   
+                        print("-" * 20)                   
 
                     forest = build_forest(edge_list)
                     print("授权树变更为:")
-                    for tree in forest:
-                        print_tree(tree)
+                    for tree_id, root, edges in forest:
+                        root_node = TreeNode(root)
+                        print_tree(tree_id, root_node, edges)
                         print("\n" + "-" * 20)
 
                     re = 'SUCCESS'
@@ -193,15 +196,16 @@ def handle_client(client_socket):
                     c_svr.Aset_update(ASETS, tmp['aid'], tmp['alpha'], tmp['aidA'])
 
                     print(f"[{datetime.now()}] DU间授权信息表 <ASET> 新增以下内容:")
-                    print("-----") 
+                    print("-" * 20) 
                     print(f"|<aid> {tmp['aid']}")
                     print(f"|<alp> {tmp['alpha']}")
-                    print("-----") 
+                    print("-" * 20) 
 
                     forest = build_forest(edge_list)
                     print("授权树变更为:")
-                    for tree in forest:
-                        print_tree(tree)
+                    for tree_id, root, edges in forest:
+                        root_node = TreeNode(root)
+                        print_tree(tree_id, root_node, edges)
                         print("\n" + "-" * 20)
 
                     re = 'SUCCESS'
@@ -216,24 +220,24 @@ def handle_client(client_socket):
                 try:
                     token = tmp['token']
                     print(f"> 用户令牌:")
-                    print("-----") 
+                    print("-" * 20) 
                     for (uid, stk) in token:
                         print(f'|<uid> {uid}')
                         print(f'|<stk> {stk}')
-                        print("-----")  
+                        print("-" * 20)  
                     aid = tmp['aid']
                     if aid is not None:
                         print(f"> 用户离线授权索引:")
-                        print("-----") 
+                        print("-" * 20) 
                         print(f"|<aid> {aid}")
-                        print("-----") 
+                        print("-" * 20) 
                     re = c_svr.search(token, aid, USETS, ASETS, XSETS)
                     print("> 搜索结果:")
-                    print("-----") 
+                    print("-" * 20) 
                     for (idx, ywd) in re:
                         print(f'|<idx> {idx}')
                         print(f'|<Ywd> {ywd}')
-                        print("-----")  
+                        print("-" * 20)  
                 except Exception as e:
                     re = f'Error: {e}'
                 response = {'src': server, 'dst': user_id, 'function': 'SEARCH', 'data': re}

@@ -329,9 +329,8 @@ def online_revo(request):
         edge_list = []
         ats = models.Auth.objects.all()
         for a in ats:
-            edge = (a.userA.username, a.userB.username)
-            if edge not in edge_list:
-                edge_list.append(edge)
+            edge = (a.userA.username, a.userB.username, a.doc)
+            edge_list.append(edge)
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
@@ -430,9 +429,8 @@ def offline_revo(request):
         edge_list = []
         ats = models.Auth.objects.all()
         for a in ats:
-            edge = (a.userA.username, a.userB.username)
-            if edge not in edge_list:
-                edge_list.append(edge)
+            edge = (a.userA.username, a.userB.username, a.doc)
+            edge_list.append(edge)
 
         data = {'aid': bytes(aset.contents.aid), 'alpha': bytes(aset.contents.trapgate), 'aidA': aida}
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -509,9 +507,8 @@ def online_auth(request):
         edge_list = []
         ats = models.Auth.objects.all()
         for a in ats:
-            edge = (a.userA.username, a.userB.username)
-            if edge not in edge_list:
-                edge_list.append(edge)
+            edge = (a.userA.username, a.userB.username, a.doc)
+            edge_list.append(edge)
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
@@ -588,7 +585,7 @@ def offline_auth(request):
             userA = user,
             userB = tar_user,
             authtype = 1,
-            doc = document
+            doc = documents[1]
         )
         at.save()
         ad = models.Aid.objects.create(
@@ -616,9 +613,8 @@ def offline_auth(request):
         edge_list = []
         ats = models.Auth.objects.all()
         for a in ats:
-            edge = (a.userA.username, a.userB.username)
-            if edge not in edge_list:
-                edge_list.append(edge)
+            edge = (a.userA.username, a.userB.username, a.doc)
+            edge_list.append(edge)
 
         data = {'aid': bytes(aset.contents.aid), 'alpha': bytes(aset.contents.trapgate), 'aidA': aida}
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
