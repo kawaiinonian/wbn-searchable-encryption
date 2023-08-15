@@ -60,13 +60,14 @@ class c_user:
     ):
         input_dockey_type = DOC_KEY * len(DOCKEY_LIST)
         input_dockey = input_dockey_type(*DOCKEY_LIST)
+        output_dockey = input_dockey_type()
         input_userauth_type = USER_AUTH * len(USERAUTH_LIST)
         input_userauth = input_userauth_type(*USERAUTH_LIST)
         ret_token_type = Token * len(DOCKEY_LIST)
         ret_token = ret_token_type()
         self.lib.search_generate(word, ukey, input_dockey, len(DOCKEY_LIST),
-            input_userauth, len(USERAUTH_LIST), ret_token)
-        return ret_token
+            input_userauth, len(USERAUTH_LIST), ret_token, output_dockey)
+        return ret_token, output_dockey
 
     def gen_key(self):
         return get_random_key(LAMBDA)
