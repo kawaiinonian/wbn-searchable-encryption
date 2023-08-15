@@ -130,14 +130,24 @@ def search(request):
                     get_element_from_bytes(o.offtok)
                 ) for o in userauth]
         dk = models.DocKey.objects.filter(user=user)
+
+        for i in dk:
+            print(i.id)
+            print(i.d.decode())
+            
         dockey = [DOC_KEY(
                 get_d_from_bytes(d.d), 
                 get_key_from_bytes(d.kdenc), 
                 get_key_from_bytes(d.kd)
             ) for d in dk]
 
-        ret_token = cusr.search_generate(word, uk, dockey, userauth)
+        ret_token, dockey = cusr.search_generate(word, uk, dockey, userauth)
         token = [(bytes(t.uid), bytes(t.stk)) for t in ret_token]
+        key_dec = [{
+            'd': bytes(k.d),
+            'kdenc': bytes(k.kd_enc),
+            'kd': bytes(k.kd)
+        } for k in dockey]
         
         try:
             user_aid = models.Aid.objects.get(user=user)
@@ -163,8 +173,8 @@ def search(request):
         documents = []
         for (i, ywd) in res['data']:
             print(i)
-            print(dk[i].d.decode())
-            kdenc = dk[i].kdenc
+            print(key_dec[i]['d'])
+            kdenc = key_dec[i]['kdenc']
             d = cusr.dec_ywd(kdenc, ywd)
             d = d.decode()
             documents.append(d)
