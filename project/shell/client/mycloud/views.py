@@ -162,6 +162,8 @@ def search(request):
 
         documents = []
         for (i, ywd) in res['data']:
+            print(i)
+            print(dk[i].d.decode())
             kdenc = dk[i].kdenc
             d = cusr.dec_ywd(kdenc, ywd)
             d = d.decode()
