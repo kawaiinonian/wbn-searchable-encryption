@@ -61,7 +61,7 @@ function FileButtonFunctions() {
                 // 处理授权失败的情况，比如显示授权失败的提示信息
                 Swal.fire(
                   'Authorization Failed!',
-                  'Failed to authorize the file.',
+                  data['msg'],
                   'error'
                 );
               }
