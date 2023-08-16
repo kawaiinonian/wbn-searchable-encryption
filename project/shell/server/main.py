@@ -101,7 +101,7 @@ def handle_client(client_socket):
             # OnlineRevo
             elif message['function'] == 'ONLINEREVO':
                 print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <撤销在线授权> 请求")
-                (tmp, edge_list) = message['data']
+                (tmp, edge_dict) = message['data']
                 try:
                     keys_to_remove = tmp.keys()
                     removed_items = [(key, value) for key, value in USETS.items() if key in keys_to_remove]
@@ -114,12 +114,14 @@ def handle_client(client_socket):
                         if key in USETS.keys():
                             USETS.pop(key)
 
-                    forest = build_forest(edge_list)
                     print("> 授权树变更为:")
-                    for tree_id, root, edges in forest:
-                        root_node = TreeNode(root)
-                        print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 10)
+                    print("-" * 10)
+                    for tree_id, edge_list in edge_dict.items():
+                        print(tree_id + ":")
+                        forest = build_forest(edge_list)
+                        for tree in forest:
+                            print_tree(tree)
+                            print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
@@ -129,7 +131,7 @@ def handle_client(client_socket):
             # OfflineRevo
             elif message['function'] == 'OFFLINEREVO':
                 print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <撤销离线授权> 请求")
-                (tmp, edge_list) = message['data']
+                (tmp, edge_dict) = message['data']
                 try:
                     keys_to_remove = [tmp['aid']]
                     print(f"[{datetime.now()}] DU间授权关系表 <ASET> 删除以下键值:")
@@ -150,12 +152,14 @@ def handle_client(client_socket):
 
                         keys_to_remove = dkeys
                     
-                    forest = build_forest(edge_list)
                     print("> 授权树变更为:")
-                    for tree_id, root, edges in forest:
-                        root_node = TreeNode(root)
-                        print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 10)
+                    print("-" * 10)
+                    for tree_id, edge_list in edge_dict.items():
+                        print(tree_id + ":")
+                        forest = build_forest(edge_list)
+                        for tree in forest:
+                            print_tree(tree)
+                            print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
@@ -165,7 +169,7 @@ def handle_client(client_socket):
             # OnlineAuth
             elif message['function'] == 'ONLINE':
                 print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <在线授权> 请求")
-                (tmp, edge_list) = message['data']
+                (tmp, edge_dict) = message['data']
                 try:
                     USETS |= tmp
 
@@ -176,12 +180,14 @@ def handle_client(client_socket):
                         print(f'|<Ud>  {value}')
                         print("-" * 20)                   
 
-                    forest = build_forest(edge_list)
                     print("> 授权树变更为:")
-                    for tree_id, root, edges in forest:
-                        root_node = TreeNode(root)
-                        print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 10)
+                    print("-" * 10)
+                    for tree_id, edge_list in edge_dict.items():
+                        print(tree_id + ":")
+                        forest = build_forest(edge_list)
+                        for tree in forest:
+                            print_tree(tree)
+                            print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
@@ -191,7 +197,7 @@ def handle_client(client_socket):
             # OfflineAuth
             elif message['function'] == 'OFFLINE':
                 print(f"[{datetime.now()}] 收到来自 <{user_id}> 的 <离线授权> 请求")
-                (tmp, edge_list) = message['data']
+                (tmp, edge_dict) = message['data']
                 try:
                     c_svr.Aset_update(ASETS, tmp['aid'], tmp['alpha'], tmp['aidA'])
 
@@ -201,12 +207,14 @@ def handle_client(client_socket):
                     print(f"|<alp> {tmp['alpha']}")
                     print("-" * 20) 
 
-                    forest = build_forest(edge_list)
                     print("> 授权树变更为:")
-                    for tree_id, root, edges in forest:
-                        root_node = TreeNode(root)
-                        print_tree(tree_id, root_node, edges)
-                        print("\n" + "-" * 10)
+                    print("-" * 10)
+                    for tree_id, edge_list in edge_dict.items():
+                        print(tree_id + ":")
+                        forest = build_forest(edge_list)
+                        for tree in forest:
+                            print_tree(tree)
+                            print("\n" + "-" * 10)
 
                     re = 'SUCCESS'
                 except Exception as e:
